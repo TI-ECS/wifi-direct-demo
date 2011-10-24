@@ -1,9 +1,11 @@
 TEMPLATE = app
 
+RESOURCES = wifi-direct-ui.qrc
 QT += gui
 DEPENDPATH += . src
 INCLUDEPATH += . src
 
+RCC_DIR = tmp
 UI_DIR = tmp
 MOC_DIR = tmp
 OBJECTS_DIR = tmp
@@ -32,5 +34,5 @@ FORMS += ui/mainwindow.ui
 
 HEADERS += src/mainwindow.h
 
-SOURCES += src/main.cpp \
-        src/mainwindow.cpp
+SOURCES += src/main.cpp         \
+           src/mainwindow.cpp
