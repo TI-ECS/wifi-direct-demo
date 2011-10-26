@@ -32,7 +32,9 @@ INSTALLS += target
 
 FORMS += ui/mainwindow.ui
 
-HEADERS += src/mainwindow.h
+HEADERS += src/mainwindow.h     \
+           src/keyboard.h
 
 SOURCES += src/main.cpp         \
-           src/mainwindow.cpp
+           src/mainwindow.cpp   \
+           src/keyboard.cpp
