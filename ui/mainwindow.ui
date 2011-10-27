@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QCheckBox {
-	spacing: 20px;
+	spacing: 10px;
 }
 QCheckBox::indicator {
     width: 35px;
@@ -149,7 +149,7 @@ QSlider::handle:horizontal {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
     border: 1px solid #5c5c5c;
     width: 26px;
-    margin: -8px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    margin: -8px 0; 
     border-radius: 3px;
 }
 QSpinBox {
@@ -206,13 +206,16 @@ QSpinBox::down-arrow:off { /* off state when value in min */
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <property name="spacing">
-    <number>2</number>
+    <number>4</number>
+   </property>
+   <property name="leftMargin">
+    <number>4</number>
    </property>
    <property name="topMargin">
-    <number>2</number>
+    <number>4</number>
    </property>
    <property name="rightMargin">
-    <number>2</number>
+    <number>4</number>
    </property>
    <property name="bottomMargin">
     <number>2</number>
@@ -227,8 +230,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>787</width>
-        <height>462</height>
+        <width>790</width>
+        <height>460</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -244,89 +247,101 @@ QSpinBox::down-arrow:off { /* off state when value in min */
           <string notr="true"/>
          </property>
          <widget class="QWidget" name="mainPage">
-          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <property name="margin">
+            <number>0</number>
+           </property>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <property name="spacing">
-              <number>12</number>
-             </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout">
-               <item>
-                <widget class="QCheckBox" name="wifiDirectCheckBox">
-                 <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
-                 </property>
-                 <property name="layoutDirection">
-                  <enum>Qt::RightToLeft</enum>
-                 </property>
-                 <property name="text">
-                  <string>Enable WiFi Direct</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="startGroupButton">
-                 <property name="text">
-                  <string>Start Group</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="QLabel" name="wifiDirectLabel">
-                 <property name="text">
-                  <string>WiFi Direct Status:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="wifiDirectStatusLabel">
-                 <property name="styleSheet">
-                  <string notr="true"> QPushButton#evilButton {
+              <widget class="QCheckBox" name="wifiDirectCheckBox">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>12</pointsize>
+                 <weight>9</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::LeftToRight</enum>
+               </property>
+               <property name="text">
+                <string>Enable WiFi Direct</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="wifiDirectLabel">
+               <property name="text">
+                <string>WiFi Direct Status:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="wifiDirectStatusLabel">
+               <property name="styleSheet">
+                <string notr="true"> QPushButton#evilButton {
      border-style: outset;
      border-width: 2px;
      border-color: red;
  }</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
              </item>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <property name="spacing">
-                <number>3</number>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
                </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="refreshButton">
+               <property name="text">
+                <string>Refresh</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="startGroupButton">
+               <property name="text">
+                <string>Start Group</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
-                <widget class="QLabel" name="discoveredDevicesLabel">
+                <widget class="QPushButton" name="exitButton">
+                 <property name="styleSheet">
+                  <string notr="true">border-style:ridge;
+border-width: 4px;
+border-color: red;
+width: 50px;</string>
+                 </property>
                  <property name="text">
-                  <string>Discovered Devices</string>
+                  <string>Exit</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QListView" name="listView">
-                 <property name="verticalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAsNeeded</enum>
-                 </property>
-                 <property name="horizontalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAsNeeded</enum>
+                <widget class="QPushButton" name="settingsButton">
+                 <property name="text">
+                  <string>Settings</string>
                  </property>
                 </widget>
                </item>
@@ -335,44 +350,24 @@ QSpinBox::down-arrow:off { /* off state when value in min */
             </layout>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <property name="spacing">
+              <number>3</number>
+             </property>
              <item>
-              <widget class="QPushButton" name="exitButton">
-               <property name="styleSheet">
-                <string notr="true">border-style:ridge;
-border-width: 4px;
-border-color: red;
-width: 50px;</string>
-               </property>
+              <widget class="QLabel" name="discoveredDevicesLabel">
                <property name="text">
-                <string>Exit</string>
+                <string>Discovered Devices</string>
                </property>
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+              <widget class="QListView" name="listView">
+               <property name="verticalScrollBarPolicy">
+                <enum>Qt::ScrollBarAsNeeded</enum>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="settingsButton">
-               <property name="text">
-                <string>Settings</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="refreshButton">
-               <property name="text">
-                <string>Refresh</string>
+               <property name="horizontalScrollBarPolicy">
+                <enum>Qt::ScrollBarAsNeeded</enum>
                </property>
               </widget>
              </item>
@@ -383,8 +378,8 @@ width: 50px;</string>
          <widget class="QWidget" name="settingsPage">
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <layout class="QGridLayout" name="gridLayout">
-             <item row="0" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
               <widget class="QLabel" name="intentLabel">
                <property name="font">
                 <font>
@@ -404,7 +399,7 @@ width: 50px;</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item>
               <widget class="QLabel" name="intentMessageLabel">
                <property name="styleSheet">
                 <string notr="true">font: 14pt &quot;Arial&quot;;</string>
@@ -414,14 +409,55 @@ width: 50px;</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0" colspan="5">
-              <widget class="Line" name="line">
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QSlider" name="intentSlider">
+               <property name="maximum">
+                <number>15</number>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item>
+              <widget class="QSpinBox" name="intentSpinBox">
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="maximum">
+                <number>15</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
               <widget class="QLabel" name="channelLabel">
                <property name="font">
                 <font>
@@ -440,7 +476,7 @@ width: 50px;</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0" colspan="2">
+             <item>
               <widget class="QLabel" name="channelMessageLabel">
                <property name="styleSheet">
                 <string notr="true">font: 14pt &quot;Arial&quot;;
@@ -451,7 +487,52 @@ width: 50px;</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="4">
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QSlider" name="channelSlider">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>11</number>
+               </property>
+               <property name="singleStep">
+                <number>5</number>
+               </property>
+               <property name="pageStep">
+                <number>5</number>
+               </property>
+               <property name="tracking">
+                <bool>true</bool>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::NoTicks</enum>
+               </property>
+               <property name="tickInterval">
+                <number>5</number>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QSpinBox" name="channelSpinBox">
                <property name="styleSheet">
                 <string notr="true"/>
@@ -462,63 +543,16 @@ width: 50px;</string>
                <property name="readOnly">
                 <bool>false</bool>
                </property>
-               <property name="maximum">
-                <number>160</number>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0" colspan="5">
-              <widget class="Line" name="line_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <widget class="QSlider" name="horizontalSlider">
-               <property name="maximum">
-                <number>160</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="4">
-              <widget class="QSpinBox" name="intentSpinBox">
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
+               <property name="minimum">
+                <number>1</number>
                </property>
                <property name="maximum">
-                <number>15</number>
+                <number>11</number>
+               </property>
+               <property name="singleStep">
+                <number>5</number>
                </property>
               </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QSlider" name="horizontalSlider_2">
-               <property name="maximum">
-                <number>15</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Fixed</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>10</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </item>
@@ -545,6 +579,7 @@ width: 50px;</string>
           </layout>
           <zorder>backButton</zorder>
           <zorder>verticalSpacer_2</zorder>
+          <zorder></zorder>
          </widget>
         </widget>
        </item>
@@ -629,8 +664,8 @@ width: 50px;</string>
    <slot>enableStateChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>200</x>
-     <y>53</y>
+     <x>207</x>
+     <y>48</y>
     </hint>
     <hint type="destinationlabel">
      <x>215</x>
@@ -639,23 +674,23 @@ width: 50px;</string>
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSlider</sender>
+   <sender>channelSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>channelSpinBox</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>680</x>
-     <y>206</y>
+     <x>692</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
-     <x>774</x>
-     <y>217</y>
+     <x>786</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSlider_2</sender>
+   <sender>intentSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>intentSpinBox</receiver>
    <slot>setValue(int)</slot>
@@ -673,7 +708,7 @@ width: 50px;</string>
   <connection>
    <sender>intentSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>horizontalSlider_2</receiver>
+   <receiver>intentSlider</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -681,56 +716,24 @@ width: 50px;</string>
      <y>54</y>
     </hint>
     <hint type="destinationlabel">
-     <x>680</x>
-     <y>99</y>
+     <x>692</x>
+     <y>93</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>channelSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>horizontalSlider</receiver>
+   <receiver>channelSlider</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>774</x>
-     <y>217</y>
+     <x>786</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>680</x>
-     <y>206</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>channelChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>680</x>
-     <y>206</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>799</x>
-     <y>228</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSlider_2</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>intentChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>518</x>
-     <y>67</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>7</x>
-     <y>17</y>
+     <x>692</x>
+     <y>200</y>
     </hint>
    </hints>
   </connection>
