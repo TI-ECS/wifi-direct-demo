@@ -577,6 +577,7 @@ width: 50px;</string>
             </widget>
            </item>
           </layout>
+          <zorder>line</zorder>
           <zorder>backButton</zorder>
           <zorder>verticalSpacer_2</zorder>
           <zorder></zorder>
@@ -622,38 +623,6 @@ width: 50px;</string>
     <hint type="destinationlabel">
      <x>4</x>
      <y>328</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>refreshButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>refreshClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>786</x>
-     <y>448</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>799</x>
-     <y>446</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>startGroupButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>startGroupClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>179</x>
-     <y>80</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>282</x>
-     <y>0</y>
     </hint>
    </hints>
   </connection>

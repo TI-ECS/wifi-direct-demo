@@ -3,6 +3,7 @@
 
 #include "keyboard.h"
 #include "ui_mainwindow.h"
+#include "wpap2p.h"
 
 class MainWindow : public QWidget, public Ui::MainWindow
 {
@@ -14,19 +15,18 @@ public:
 
 private slots:
     void focusChanged(QWidget *old, QWidget *now);
+    void groupStarted();
+    void groupStopped();
 
 public slots:
     void backClicked();
-    void channelChanged(int value);
     void enableStateChanged(int state);
     void exitClicked();
-    void intentChanged(int value);
-    void refreshClicked();
     void settingsClicked();
-    void startGroupClicked();
 
 private:
     Keyboard *keyboard;
+    WPAp2p wpa;
 };
 
 
