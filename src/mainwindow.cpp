@@ -23,6 +23,13 @@ MainWindow::MainWindow(QWidget *parent)
         qws->setCursorVisible(false);
 #endif
 
+    if (wpa.isRunning()) {
+        wifiDirectCheckBox->setCheckState(Qt::Checked);
+    } else {
+        wifiDirectCheckBox->setCheckState(Qt::Unchecked);
+        wifiDirectStatusLabel->setText("Disabled");
+    }
+
     dynamic_cast<QVBoxLayout *>(layout())->setStretchFactor(scrollArea, 1);
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)), this,
             SLOT(focusChanged(QWidget*, QWidget*)));
@@ -32,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(groupStarted()));
     connect(&wpa, SIGNAL(groupStopped()), this,
             SLOT(groupStopped()));
+    connect(&wpa, SIGNAL(enabled(bool)), this,
+            SLOT(setWifiDirectEnabled(bool)));
     connect(intentSlider, SIGNAL(valueChanged(int)), &wpa,
             SLOT(setIntent(int)));
     connect(channelSlider, SIGNAL(valueChanged(int)), &wpa,
@@ -55,9 +64,9 @@ void MainWindow::backClicked()
 void MainWindow::enableStateChanged(int state)
 {
     if (state == Qt::Checked)
-        qDebug() << "Checked";
+        wpa.setEnabled(true);
     else
-        qDebug() << "Not Checked";
+        wpa.setEnabled(false);
 }
 
 void MainWindow::exitClicked()
@@ -93,4 +102,15 @@ void MainWindow::settingsClicked()
 {
     backButton->setFocus(Qt::OtherFocusReason);
     stackedWidget->setCurrentWidget(settingsPage);
+}
+
+void MainWindow::setWifiDirectEnabled(bool state)
+{
+    if (state) {
+        wifiDirectCheckBox->setCheckState(Qt::Checked);
+    } else {
+        wifiDirectCheckBox->setCheckState(Qt::Unchecked);
+        wifiDirectStatusLabel->setText("Disabled");
+        startGroupButton->setText("Start Group");
+    }
 }

@@ -23,24 +23,30 @@ public:
     WPAp2p(QObject *parent = 0);
     virtual ~WPAp2p();
     bool start();
+    bool isRunning() { return (WPAPid == -1) ? false : true; }
 
 public slots:
+    void scan();
     void setChannel(int value);
     void setIntent(int value);
     void startGroup();
-    void scan();
+    void setEnabled(bool state);
 
 private slots:
+    void getPeers();
     void readWPAStandartOutput();
 
 signals:
+    void devicesFounded(const QStringList &devices);
     void groupStarted();
     void groupStopped();
     void status(const QString &status);
+    void enabled(bool started);
 
 private:
     bool hasGroup;
-    QProcess wpaProcess;
+    Q_PID WPAPid;
+    QProcess WPAProcess;
     ACTIONS currentAction;
 };
 

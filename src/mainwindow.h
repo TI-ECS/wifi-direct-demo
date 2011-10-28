@@ -17,6 +17,7 @@ private slots:
     void focusChanged(QWidget *old, QWidget *now);
     void groupStarted();
     void groupStopped();
+    void setWifiDirectEnabled(bool state);
 
 public slots:
     void backClicked();
