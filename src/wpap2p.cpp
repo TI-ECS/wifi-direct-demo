@@ -35,7 +35,7 @@ void WPAp2p::readWPAStandartOutput()
     switch (currentAction) {
     case GETTING_STATUS:
         if ((index = value.indexOf("wpa_state=")) > -1) {
-            emit status(value.mid(index + 10, value.indexOf("\n", index) -  10));
+            emit status(value.mid(index + 10, value.indexOf("\n", index) - index - 10));
             currentAction = NONE;
         }
         break;
