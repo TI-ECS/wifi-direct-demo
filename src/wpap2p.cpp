@@ -7,6 +7,7 @@
 #include <sys/types.h>
 
 #define CREATE_GROUP "p2p_group_add\n"
+#define GET_PEERS "p2p_peers\n"
 #define GET_STATUS "status\n"
 #define P2P_FIND "p2p_find %1\n"
 #define REMOVE_GROUP "p2p_group_remove %1\n"
@@ -65,7 +66,8 @@ WPAp2p::~WPAp2p()
 
 void WPAp2p::getPeers()
 {
-    emit devicesFounded(QStringList());
+    WPAProcess.write(GET_PEERS);
+    currentAction = SCANNING;
 }
 
 void WPAp2p::readWPAStandartOutput()
@@ -73,8 +75,9 @@ void WPAp2p::readWPAStandartOutput()
     if (currentAction == NONE)
         return;
 
-    QString value(WPAProcess.read(WPAProcess.bytesAvailable()));
     int index;
+    QString value(WPAProcess.read(WPAProcess.bytesAvailable()));
+    QStringList devices;
 
     switch (currentAction) {
     case GETTING_STATUS:
@@ -100,6 +103,12 @@ void WPAp2p::readWPAStandartOutput()
         }
         break;
     case SCANNING:
+        devices = value.split("\n");
+        devices.removeFirst(); devices.removeLast();
+        emit devicesFounded(devices);
+        WPAProcess.write(GET_STATUS);
+        currentAction = GETTING_STATUS;
+        break;
     case CHANGE_INTENT:
         if (value.contains("OK"))
             currentAction = NONE;
@@ -134,6 +143,7 @@ bool WPAp2p::start()
 
     WPAProcess.write(QString(P2P_FIND).arg(TIMEOUT).
                      toAscii());
+    QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
     WPAProcess.write(GET_STATUS);
     currentAction = GETTING_STATUS;
     return true;

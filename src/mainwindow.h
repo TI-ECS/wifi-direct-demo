@@ -5,6 +5,8 @@
 #include "ui_mainwindow.h"
 #include "wpap2p.h"
 
+class QStringListModel;
+
 class MainWindow : public QWidget, public Ui::MainWindow
 {
 Q_OBJECT
@@ -21,12 +23,14 @@ private slots:
 
 public slots:
     void backClicked();
+    void devicesFounded(const QStringList &devices);
     void enableStateChanged(int state);
     void exitClicked();
     void settingsClicked();
 
 private:
     Keyboard *keyboard;
+    QStringListModel *devicesModel;
     WPAp2p wpa;
 };
 

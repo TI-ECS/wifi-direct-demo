@@ -4,6 +4,7 @@
 
 #include <QDebug>
 #include <QLineEdit>
+#include <QStringListModel>
 
 #if !defined(DEBUG)
 #include <QWSServer>
@@ -16,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     keyboard = new Keyboard;
     keyboard->setVisible(false);
     layout()->addWidget(keyboard);
+    devicesModel = NULL;
 
 #if !defined(DEBUG)
     QWSServer *qws = QWSServer::instance();
@@ -35,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(focusChanged(QWidget*, QWidget*)));
     connect(&wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
             SLOT(setText(const QString&)));
+    connect(&wpa, SIGNAL(devicesFounded(const QStringList&)), this,
+            SLOT(devicesFounded(const QStringList&)));
     connect(&wpa, SIGNAL(groupStarted()), this,
             SLOT(groupStarted()));
     connect(&wpa, SIGNAL(groupStopped()), this,
@@ -54,11 +58,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    delete devicesModel;
 }
 
 void MainWindow::backClicked()
 {
     stackedWidget->setCurrentWidget(mainPage);
+}
+
+void MainWindow::devicesFounded(const QStringList &devices)
+{
+    delete devicesModel;
+    devicesModel = new QStringListModel(devices);
+    listView->setModel(devicesModel);
 }
 
 void MainWindow::enableStateChanged(int state)
