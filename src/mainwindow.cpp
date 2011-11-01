@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     keyboard->setVisible(false);
     layout()->addWidget(keyboard);
     devicesModel = NULL;
+    wpa = new WPAp2p;
 
 #if !defined(DEBUG)
     QWSServer *qws = QWSServer::instance();
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
         qws->setCursorVisible(false);
 #endif
 
-    if (wpa.isRunning()) {
+    if (wpa->isRunning()) {
         wifiDirectCheckBox->setCheckState(Qt::Checked);
     } else {
         wifiDirectCheckBox->setCheckState(Qt::Unchecked);
@@ -35,30 +36,32 @@ MainWindow::MainWindow(QWidget *parent)
     dynamic_cast<QVBoxLayout *>(layout())->setStretchFactor(scrollArea, 1);
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)), this,
             SLOT(focusChanged(QWidget*, QWidget*)));
-    connect(&wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
+    connect(wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
             SLOT(setText(const QString&)));
-    connect(&wpa, SIGNAL(devicesFounded(const QStringList&)), this,
+    connect(wpa, SIGNAL(devicesFounded(const QStringList&)), this,
             SLOT(devicesFounded(const QStringList&)));
-    connect(&wpa, SIGNAL(groupStarted()), this,
+    connect(wpa, SIGNAL(groupStarted()), this,
             SLOT(groupStarted()));
-    connect(&wpa, SIGNAL(groupStopped()), this,
+    connect(wpa, SIGNAL(groupStopped()), this,
             SLOT(groupStopped()));
-    connect(&wpa, SIGNAL(enabled(bool)), this,
+    connect(wpa, SIGNAL(enabled(bool)), this,
             SLOT(setWifiDirectEnabled(bool)));
-    connect(intentSlider, SIGNAL(valueChanged(int)), &wpa,
+    connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
             SLOT(setIntent(int)));
-    connect(channelSlider, SIGNAL(valueChanged(int)), &wpa,
+    connect(channelSlider, SIGNAL(valueChanged(int)), wpa,
             SLOT(setChannel(int)));
-    connect(startGroupButton, SIGNAL(clicked()), &wpa,
+    connect(startGroupButton, SIGNAL(clicked()), wpa,
             SLOT(startGroup()));
-    connect(refreshButton, SIGNAL(clicked()), &wpa,
+    connect(refreshButton, SIGNAL(clicked()), wpa,
             SLOT(scan()));
-    wpa.start();
+    wpa->start();
 }
 
 MainWindow::~MainWindow()
 {
+    wpa->terminate();
     delete devicesModel;
+    delete wpa;
 }
 
 void MainWindow::backClicked()
@@ -76,9 +79,9 @@ void MainWindow::devicesFounded(const QStringList &devices)
 void MainWindow::enableStateChanged(int state)
 {
     if (state == Qt::Checked)
-        wpa.setEnabled(true);
+        wpa->setEnabled(true);
     else
-        wpa.setEnabled(false);
+        wpa->setEnabled(false);
 }
 
 void MainWindow::exitClicked()

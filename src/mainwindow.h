@@ -31,7 +31,7 @@ public slots:
 private:
     Keyboard *keyboard;
     QStringListModel *devicesModel;
-    WPAp2p wpa;
+    WPAp2p *wpa;
 };
 
 

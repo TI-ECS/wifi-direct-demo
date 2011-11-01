@@ -1,8 +1,11 @@
 #ifndef _WPAP2P_H_
 #define _WPAP2P_H_
 
+#include <QMutex>
 #include <QObject>
 #include <QProcess>
+#include <QThread>
+#include <QQueue>
 
 
 enum ACTIONS {
@@ -11,26 +14,33 @@ enum ACTIONS {
     GETTING_STATUS,
     NONE,
     SCANNING,
+    SCAN_RESULT,
     START_GROUP,
     STOP_GROUP
 };
 
-class WPAp2p : public QObject
+typedef struct ActionValue_ {
+    ACTIONS action;
+    int value;
+} ActionValue;
+
+class WPAp2p : public QThread
 {
 Q_OBJECT
 
 public:
     WPAp2p(QObject *parent = 0);
     virtual ~WPAp2p();
-    bool start();
+    void run();
     bool isRunning() { return (WPAPid == -1) ? false : true; }
 
 public slots:
     void scan();
     void setChannel(int value);
-    void setIntent(int value);
-    void startGroup();
     void setEnabled(bool state);
+    void setIntent(int value);
+    void start(Priority priority = InheritPriority);
+    void startGroup();
 
 private slots:
     void getPeers();
@@ -45,8 +55,10 @@ signals:
 
 private:
     bool hasGroup;
-    Q_PID WPAPid;
+    qint64 WPAPid;
+    QMutex mutex;
     QProcess WPAProcess;
+    QQueue<ActionValue> actionsQueue;
     ACTIONS currentAction;
 };
 

@@ -47,7 +47,7 @@ Q_PID proc_find(const QString &name)
 }
 
 WPAp2p::WPAp2p(QObject *parent)
-    :QObject(parent),
+    :QThread(parent),
      WPAProcess(0)
 {
     hasGroup = false;
@@ -66,8 +66,10 @@ WPAp2p::~WPAp2p()
 
 void WPAp2p::getPeers()
 {
-    WPAProcess.write(GET_PEERS);
-    currentAction = SCANNING;
+    if (WPAPid == -1) return;
+
+    ActionValue action = {SCAN_RESULT, 0};
+    actionsQueue.enqueue(action);
 }
 
 void WPAp2p::readWPAStandartOutput()
@@ -75,90 +77,150 @@ void WPAp2p::readWPAStandartOutput()
     if (currentAction == NONE)
         return;
 
+    ActionValue actionStatus = {GETTING_STATUS, 0};
     int index;
     QString value(WPAProcess.read(WPAProcess.bytesAvailable()));
     QStringList devices;
 
+    mutex.lock();
     switch (currentAction) {
     case GETTING_STATUS:
         if ((index = value.indexOf("wpa_state=")) > -1) {
-            emit status(value.mid(index + 10, value.indexOf("\n", index) - index - 10));
-            currentAction = NONE;
+            emit status(value.mid(index + 10, value.indexOf("\n", index)
+                                  - index - 10));
         }
         break;
     case START_GROUP:
         if (value.contains("OK")) {
             emit groupStarted();
             hasGroup = true;
-            WPAProcess.write(GET_STATUS);
-            currentAction = GETTING_STATUS;
+            actionsQueue.enqueue(actionStatus);
         }
         break;
     case STOP_GROUP:
         if (value.contains("OK")) {
             emit groupStopped();
             hasGroup = false;
-            WPAProcess.write(GET_STATUS);
-            currentAction = GETTING_STATUS;
+            actionsQueue.enqueue(actionStatus);
         }
         break;
     case SCANNING:
-        devices = value.split("\n");
-        devices.removeFirst(); devices.removeLast();
-        emit devicesFounded(devices);
-        WPAProcess.write(GET_STATUS);
-        currentAction = GETTING_STATUS;
+        if (value.contains("FAIL"))
+            qDebug() << "Scanning fails";
+        actionsQueue.enqueue(actionStatus);
         break;
+    case SCAN_RESULT:
+        devices = value.split("\n");
+        if (devices.length() > 2) {
+            devices.removeFirst(); devices.removeLast();
+            emit devicesFounded(devices);
+        }
     case CHANGE_INTENT:
-        if (value.contains("OK"))
-            currentAction = NONE;
+        if (value.contains("FAIL"))
+            qDebug() << "Change intent fails";
     case CHANGE_CHANNEL:
     default: break;
+    }
+
+    currentAction = NONE;
+    mutex.unlock();
+}
+
+void WPAp2p::run()
+{
+    while (1) {
+        sleep(1.5);
+        mutex.lock();
+        if (currentAction == NONE) {
+            if (!actionsQueue.isEmpty()) {
+                ActionValue action = actionsQueue.dequeue();
+                currentAction = action.action;
+
+                switch (action.action) {
+                case CHANGE_CHANNEL:
+                    qDebug() << "channel: " << action.value;
+                    break;
+                case CHANGE_INTENT:
+                    WPAProcess.write(QString(SET_COMMAND).arg("p2p_go_intent").
+                                     arg(action.value).toAscii());
+                    break;
+                case GETTING_STATUS:
+                    WPAProcess.write(GET_STATUS);
+                    break;
+                case SCANNING:
+                    WPAProcess.write(QString(P2P_FIND).arg(TIMEOUT).
+                                     toAscii());
+                    QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
+                    break;
+                case SCAN_RESULT:
+                    WPAProcess.write(GET_PEERS);
+                    break;
+                case START_GROUP:
+                    WPAProcess.write(CREATE_GROUP);
+                    break;
+                case STOP_GROUP:
+                    WPAProcess.write(QString(REMOVE_GROUP).
+                                     arg("wlan0").toAscii());
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        mutex.unlock();
     }
 }
 
 void WPAp2p::scan()
 {
-    WPAProcess.write(QString(P2P_FIND).arg(TIMEOUT).
-                     toAscii());
+    if (WPAPid == -1) return;
+
+    ActionValue action = {SCANNING, 0};
+    actionsQueue.enqueue(action);
+
     QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
 }
 
 void WPAp2p::setChannel(int value)
 {
-    qDebug() << "channel: " << value;
+    if (WPAPid == -1) return;
+
+    ActionValue action = {CHANGE_CHANNEL, value};
+    actionsQueue.enqueue(action);
 }
 
 void WPAp2p::setIntent(int value)
 {
-    WPAProcess.write(QString(SET_COMMAND).arg("p2p_go_intent").
-                     arg(value).toAscii());
+    if (WPAPid == -1) return;
+
+    ActionValue action = {CHANGE_INTENT, value};
+    actionsQueue.enqueue(action);
 }
 
-bool WPAp2p::start()
+void WPAp2p::start(Priority priority)
 {
-   WPAProcess.start("wpa_cli");
+    WPAProcess.start("wpa_cli");
     if (!WPAProcess.waitForStarted(3000))
-        return false;
+        return;
 
-    WPAProcess.write(QString(P2P_FIND).arg(TIMEOUT).
-                     toAscii());
+    ActionValue action = {SCANNING, 0};
+    actionsQueue.enqueue(action);
+
     QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
-    WPAProcess.write(GET_STATUS);
-    currentAction = GETTING_STATUS;
-    return true;
+    QThread::start(priority);
 }
 
 void WPAp2p::startGroup()
 {
-    if (hasGroup) {
-        WPAProcess.write(QString(REMOVE_GROUP).
-                                 arg("wlan0").toAscii());
-        currentAction = STOP_GROUP;
-    } else {
-        WPAProcess.write(CREATE_GROUP);
-        currentAction = START_GROUP;
-    }
+    if (WPAPid == -1) return;
+
+    ActionValue action;
+    if (hasGroup)
+        action.action = STOP_GROUP;
+    else
+        action.action = START_GROUP;
+
+    actionsQueue.enqueue(action);
 }
 
 void WPAp2p::setEnabled(bool state)
@@ -169,12 +231,24 @@ void WPAp2p::setEnabled(bool state)
         if (QProcess::startDetached(WPA_PROCESS_NAME,
                                     QStringList() << "d" << "-Dnl80211"
                                     << "-c/etc/wpa_supplicant.conf" << "-iwlan0"
-                                    << "-B", QDir::rootPath(), &WPAPid))
+                                    << "-B", QDir::rootPath(), &WPAPid)) {
             emit enabled(true);
-        else
+            WPAPid += 1;        // It's really weird, but startDetached is
+                                // it's always returning the pid - 1.
+            this->sleep(5);     // waiting the wpa_cli reconnects.
+            ActionValue actionStatus = {GETTING_STATUS, 0};
+            actionsQueue.enqueue(actionStatus);
+        } else {
             emit enabled(false);
+        }
     } else {
-        if (kill(WPAPid, SIGKILL) != -1)
+        if (WPAPid == -1)
+            return;
+        if (kill(WPAPid, SIGKILL) != -1) {
+            WPAPid = -1;
             emit enabled(false);
+            actionsQueue.clear();
+            currentAction = NONE;
+        }
     }
 }
