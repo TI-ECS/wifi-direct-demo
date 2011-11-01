@@ -4,8 +4,8 @@
 #include <QMutex>
 #include <QObject>
 #include <QProcess>
-#include <QThread>
 #include <QQueue>
+#include <QThread>
 
 
 enum ACTIONS {
@@ -31,8 +31,8 @@ Q_OBJECT
 public:
     WPAp2p(QObject *parent = 0);
     virtual ~WPAp2p();
-    void run();
     bool isRunning() { return (WPAPid == -1) ? false : true; }
+    void run();
 
 public slots:
     void scan();
@@ -48,18 +48,18 @@ private slots:
 
 signals:
     void devicesFounded(const QStringList &devices);
+    void enabled(bool started);
     void groupStarted();
     void groupStopped();
     void status(const QString &status);
-    void enabled(bool started);
 
 private:
-    bool hasGroup;
-    qint64 WPAPid;
+    ACTIONS currentAction;
     QMutex mutex;
     QProcess WPAProcess;
     QQueue<ActionValue> actionsQueue;
-    ACTIONS currentAction;
+    bool hasGroup;
+    qint64 WPAPid;
 };
 
 
