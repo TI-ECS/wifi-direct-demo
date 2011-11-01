@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     MainWindow window;
     window.setWindowTitle(QObject::tr("Wifi-Direct demo"));
 
-#if defined(DEBUG)
+#if defined(DESKTOP)
     window.setMaximumSize(800, 480);
     window.show();
 #else

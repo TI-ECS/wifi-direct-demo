@@ -57,10 +57,19 @@ WPAp2p::WPAp2p(QObject *parent)
             this, SLOT(readWPAStandartOutput()));
 
     WPAPid = proc_find(WPA_PROCESS_NAME);
+
+#if defined(DEBUG)
+    logFile.setFileName("/home/root/wifi-direct.log");
+    logFile.open(QIODevice::WriteOnly | QIODevice::Text);
+#endif
 }
 
 WPAp2p::~WPAp2p()
 {
+#if defined(DEBUG)
+    logFile.close();
+#endif
+
     WPAProcess.close();
     WPAProcess.kill();
 }
@@ -75,21 +84,30 @@ void WPAp2p::getPeers()
 
 void WPAp2p::readWPAStandartOutput()
 {
+    QString value(WPAProcess.read(WPAProcess.bytesAvailable()));
+
+#if defined(DEBUG)
+    logFile.write(QString("Current action: %1").
+                  arg(currentAction).toAscii());
+    logFile.write(value.toAscii());
+#endif
+
     if (currentAction == NONE)
         return;
 
     ActionValue actionStatus = {GETTING_STATUS, 0};
     int index;
-    QString value(WPAProcess.read(WPAProcess.bytesAvailable()));
+
     QStringList devices;
 
     mutex.lock();
     switch (currentAction) {
     case GETTING_STATUS:
-        if ((index = value.indexOf("wpa_state=")) > -1) {
+        if ((index = value.indexOf("wpa_state=")) > -1)
             emit status(value.mid(index + 10, value.indexOf("\n", index)
                                   - index - 10));
-        }
+        else
+            return;
         break;
     case START_GROUP:
         if (value.contains("OK")) {
@@ -203,14 +221,16 @@ void WPAp2p::setIntent(int value)
 
 void WPAp2p::start(Priority priority)
 {
-    WPAProcess.start("wpa_cli");
-    if (!WPAProcess.waitForStarted(3000))
-        return;
+    if (WPAPid != -1) {
 
-    ActionValue action = {SCANNING, 0};
-    actionsQueue.enqueue(action);
+        WPAProcess.start("/usr/sbin/wpa_cli");
+        if (!WPAProcess.waitForStarted(-1))
+            return;
 
-    QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
+        ActionValue action = {SCANNING, 0};
+        actionsQueue.enqueue(action);
+    }
+
     QThread::start(priority);
 }
 
@@ -230,22 +250,27 @@ void WPAp2p::startGroup()
 void WPAp2p::setEnabled(bool state)
 {
     if (state) {
-        if (WPAPid != -1)
-            return;
+        if (WPAPid != -1) return;
+
         if (QProcess::startDetached(WPA_PROCESS_NAME,
                                     QStringList() << "d" << "-Dnl80211"
                                     << "-c/etc/wpa_supplicant.conf" << "-iwlan0"
                                     << "-B", QDir::rootPath(), &WPAPid)) {
-            emit enabled(true);
             WPAPid += 1;        // It's really weird, but startDetached is
                                 // it's always returning the pid - 1.
-            this->sleep(5);     // waiting the wpa_cli reconnects.
+            this->sleep(6);     // waiting the wpa_cli reconnects.
+            WPAProcess.start("/usr/sbin/wpa_cli");
+            if (!WPAProcess.waitForStarted(-1))
+                return;
+
             ActionValue actionStatus = {GETTING_STATUS, 0};
             actionsQueue.enqueue(actionStatus);
+            emit enabled(true);
         } else {
             emit enabled(false);
         }
     } else {
+        WPAProcess.close();
         if (WPAPid == -1)
             return;
         if (kill(WPAPid, SIGKILL) != -1) {

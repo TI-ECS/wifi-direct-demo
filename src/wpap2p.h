@@ -1,6 +1,10 @@
 #ifndef _WPAP2P_H_
 #define _WPAP2P_H_
 
+#if defined(DEBUG)
+#include <QFile>
+#endif
+
 #include <QMutex>
 #include <QObject>
 #include <QProcess>
@@ -55,6 +59,11 @@ signals:
 
 private:
     ACTIONS currentAction;
+
+#if defined(DEBUG)
+    QFile logFile;
+#endif
+
     QMutex mutex;
     QProcess WPAProcess;
     QQueue<ActionValue> actionsQueue;
