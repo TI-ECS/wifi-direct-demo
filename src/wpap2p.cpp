@@ -11,6 +11,7 @@
 #define GET_STATUS "status\n"
 #define P2P_FIND "p2p_find %1\n"
 #define REMOVE_GROUP "p2p_group_remove %1\n"
+#define SET_CHANNEL "p2p_set listen_channel %1\n"
 #define SET_COMMAND "set %1 %2\n"
 #define WPA_PROCESS_NAME "wpa_supplicant"
 #define TIMEOUT 20000           // 20s
@@ -119,6 +120,8 @@ void WPAp2p::readWPAStandartOutput()
         if (value.contains("FAIL"))
             qDebug() << "Change intent fails";
     case CHANGE_CHANNEL:
+        if (value.contains("FAIL"))
+            qDebug() << "Setting channel fails";
     default: break;
     }
 
@@ -138,7 +141,8 @@ void WPAp2p::run()
 
                 switch (action.action) {
                 case CHANGE_CHANNEL:
-                    qDebug() << "channel: " << action.value;
+                    WPAProcess.write(QString(SET_CHANNEL).
+                                     arg(action.value).toAscii());
                     break;
                 case CHANGE_INTENT:
                     WPAProcess.write(QString(SET_COMMAND).arg("p2p_go_intent").
