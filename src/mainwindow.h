@@ -16,6 +16,7 @@ public:
     virtual ~MainWindow();
 
 private slots:
+    void channelReleased();
     void focusChanged(QWidget *old, QWidget *now);
     void groupStarted();
     void groupStopped();

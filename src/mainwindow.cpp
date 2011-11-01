@@ -48,12 +48,12 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(setWifiDirectEnabled(bool)));
     connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
             SLOT(setIntent(int)));
-    connect(channelSlider, SIGNAL(valueChanged(int)), wpa,
-            SLOT(setChannel(int)));
     connect(startGroupButton, SIGNAL(clicked()), wpa,
             SLOT(startGroup()));
     connect(refreshButton, SIGNAL(clicked()), wpa,
             SLOT(scan()));
+    connect(channelSlider, SIGNAL(sliderReleased()), this,
+            SLOT(channelReleased()));
     wpa->start();
 }
 
@@ -67,6 +67,21 @@ MainWindow::~MainWindow()
 void MainWindow::backClicked()
 {
     stackedWidget->setCurrentWidget(mainPage);
+}
+
+void MainWindow::channelReleased()
+{
+    int value = channelSlider->value();
+    if (value < 4) {
+        channelSlider->setValue(1);
+        wpa->setChannel(1);
+    } else if (value < 9) {
+        channelSlider->setValue(6);
+        wpa->setChannel(6);
+    } else {
+        channelSlider->setValue(11);
+        wpa->setChannel(11);
+    }
 }
 
 void MainWindow::devicesFounded(const QStringList &devices)
