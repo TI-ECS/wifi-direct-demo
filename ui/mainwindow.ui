@@ -22,7 +22,7 @@ QCheckBox::indicator {
     height: 35px;
 }
 QLabel, QCheckBox {
-    font: 75 12pt &quot;Arial&quot;;
+    font: 12pt &quot;DejaVu LGC Sans Mono&quot;;
 }
 QScrollBar:vertical {
     border: 2px solid grey;
@@ -257,9 +257,9 @@ QSpinBox::down-arrow:off { /* off state when value in min */
               <widget class="QCheckBox" name="wifiDirectCheckBox">
                <property name="font">
                 <font>
-                 <family>Arial</family>
+                 <family>DejaVu LGC Sans Mono</family>
                  <pointsize>12</pointsize>
-                 <weight>9</weight>
+                 <weight>50</weight>
                  <italic>false</italic>
                  <bold>false</bold>
                 </font>
@@ -328,10 +328,7 @@ QSpinBox::down-arrow:off { /* off state when value in min */
                <item>
                 <widget class="QPushButton" name="exitButton">
                  <property name="styleSheet">
-                  <string notr="true">border-style:ridge;
-border-width: 4px;
-border-color: red;
-width: 50px;</string>
+                  <string notr="true"/>
                  </property>
                  <property name="text">
                   <string>Exit</string>
@@ -383,16 +380,15 @@ width: 50px;</string>
               <widget class="QLabel" name="intentLabel">
                <property name="font">
                 <font>
-                 <family>Arial Black</family>
-                 <pointsize>16</pointsize>
-                 <weight>50</weight>
+                 <family>DejaVu LGC Sans Mono</family>
+                 <pointsize>14</pointsize>
+                 <weight>9</weight>
                  <italic>false</italic>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 16pt &quot;Arial Black&quot;;
-</string>
+                <string notr="true">font: 75 14pt &quot;DejaVu LGC Sans Mono&quot;;</string>
                </property>
                <property name="text">
                 <string>Intent</string>
@@ -402,7 +398,7 @@ width: 50px;</string>
              <item>
               <widget class="QLabel" name="intentMessageLabel">
                <property name="styleSheet">
-                <string notr="true">font: 14pt &quot;Arial&quot;;</string>
+                <string notr="true">font: 75 12pt &quot;DejaVu Sans Mono&quot;;</string>
                </property>
                <property name="text">
                 <string>The Intent for Connection</string>
@@ -461,15 +457,15 @@ width: 50px;</string>
               <widget class="QLabel" name="channelLabel">
                <property name="font">
                 <font>
-                 <family>Arial Black</family>
-                 <pointsize>16</pointsize>
-                 <weight>50</weight>
+                 <family>DejaVu LGC Sans Mono</family>
+                 <pointsize>14</pointsize>
+                 <weight>9</weight>
                  <italic>false</italic>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true">font: 16pt &quot;Arial Black&quot;;</string>
+                <string notr="true">font: 75 14pt &quot;DejaVu LGC Sans Mono&quot;;</string>
                </property>
                <property name="text">
                 <string>Channel</string>
@@ -479,8 +475,7 @@ width: 50px;</string>
              <item>
               <widget class="QLabel" name="channelMessageLabel">
                <property name="styleSheet">
-                <string notr="true">font: 14pt &quot;Arial&quot;;
-</string>
+                <string notr="true">font: 75 12pt &quot;DejaVu Sans Mono&quot;;</string>
                </property>
                <property name="text">
                 <string>The Channel used for scan</string>
