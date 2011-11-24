@@ -32,11 +32,13 @@ INSTALLS += target
 
 FORMS += ui/mainwindow.ui
 
-HEADERS += src/mainwindow.h     \
-           wpap2p.h             \
+HEADERS += src/device.h         \
+           src/mainwindow.h     \
+           src/wpap2p.h         \
            src/keyboard.h
 
-SOURCES += src/main.cpp         \
-           src/mainwindow.cpp   \
-           wpap2p.cpp           \
+SOURCES += src/device.cpp          \
+           src/main.cpp            \
+           src/mainwindow.cpp      \
+           src/wpap2p.cpp          \
            src/keyboard.cpp
