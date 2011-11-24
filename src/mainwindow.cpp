@@ -33,6 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
         wifiDirectStatusLabel->setText("Disabled");
     }
 
+    buttonGroup = new QButtonGroup(this);
+    buttonGroup->addButton(pbcRadioButton);
+    buttonGroup->addButton(pinRadioButton);
+
     dynamic_cast<QVBoxLayout *>(layout())->setStretchFactor(scrollArea, 1);
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)), this,
             SLOT(focusChanged(QWidget*, QWidget*)));
@@ -48,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(setWifiDirectEnabled(bool)));
     connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
             SLOT(setIntent(int)));
+    connect(listView, SIGNAL(doubleClicked(const QModelIndex&)), this,
+            SLOT(deviceSelected(const QModelIndex&)));
     connect(startGroupButton, SIGNAL(clicked()), wpa,
             SLOT(startGroup()));
     connect(refreshButton, SIGNAL(clicked()), wpa,
@@ -60,11 +66,23 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     wpa->terminate();
+
+    delete buttonGroup;
     delete devicesModel;
     delete wpa;
 }
 
+void MainWindow::acceptConnectClicked()
+{
+    qDebug() << "Connect";
+}
+
 void MainWindow::backClicked()
+{
+    stackedWidget->setCurrentWidget(mainPage);
+}
+
+void MainWindow::cancelConnectClicked()
 {
     stackedWidget->setCurrentWidget(mainPage);
 }
@@ -91,6 +109,13 @@ void MainWindow::devicesFounded(const QStringList &devices)
     listView->setModel(devicesModel);
 }
 
+void MainWindow::deviceSelected(const QModelIndex &index)
+{
+    pinLineEdit->clear();
+    pbcRadioButton->setChecked(true);
+    stackedWidget->setCurrentWidget(connectPage);
+}
+
 void MainWindow::enableStateChanged(int state)
 {
     if (state == Qt::Checked)
@@ -108,10 +133,10 @@ void MainWindow::focusChanged(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old);
 
-    if (!now)
+    if (!now || !now->objectName().size())
         return;
 
-    if (now->inherits("QLineEdit") || now->inherits("QTextEdit")) {
+    if (now->inherits("QLineEdit")) {
         keyboard->setVisible(true);
         scrollArea->ensureWidgetVisible(now);
     } else

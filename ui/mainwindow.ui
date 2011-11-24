@@ -14,14 +14,14 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QCheckBox {
+   <string notr="true">QRadioButton, QCheckBox {
 	spacing: 10px;
 }
-QCheckBox::indicator {
+QCheckBox::indicator, QRadioButton::indicator {
     width: 35px;
     height: 35px;
 }
-QLabel, QCheckBox {
+QLabel, QCheckBox, QRadioButton, QListView::item {
     font: 12pt &quot;DejaVu LGC Sans Mono&quot;;
 }
 QScrollBar:vertical {
@@ -222,6 +222,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    </property>
    <item>
     <widget class="QScrollArea" name="scrollArea">
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -360,11 +366,20 @@ QSpinBox::down-arrow:off { /* off state when value in min */
              </item>
              <item>
               <widget class="QListView" name="listView">
+               <property name="font">
+                <font>
+                 <family>DejaVu LGC Sans</family>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
                <property name="verticalScrollBarPolicy">
                 <enum>Qt::ScrollBarAsNeeded</enum>
                </property>
                <property name="horizontalScrollBarPolicy">
                 <enum>Qt::ScrollBarAsNeeded</enum>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::DoubleClicked</set>
                </property>
               </widget>
              </item>
@@ -577,6 +592,81 @@ QSpinBox::down-arrow:off { /* off state when value in min */
           <zorder>verticalSpacer_2</zorder>
           <zorder></zorder>
          </widget>
+         <widget class="QWidget" name="connectPage">
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="spacing">
+            <number>25</number>
+           </property>
+           <item>
+            <widget class="QRadioButton" name="pbcRadioButton">
+             <property name="text">
+              <string>PBC</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QRadioButton" name="pinRadioButton">
+               <property name="text">
+                <string>PIN</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="pinLineEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>PINCODE</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>309</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QDialogButtonBox" name="connectButtonBox">
+             <property name="standardButtons">
+              <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -585,6 +675,23 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pinRadioButton</tabstop>
+  <tabstop>listView</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>settingsButton</tabstop>
+  <tabstop>channelSlider</tabstop>
+  <tabstop>channelSpinBox</tabstop>
+  <tabstop>backButton</tabstop>
+  <tabstop>intentSpinBox</tabstop>
+  <tabstop>connectButtonBox</tabstop>
+  <tabstop>pinLineEdit</tabstop>
+  <tabstop>pbcRadioButton</tabstop>
+  <tabstop>startGroupButton</tabstop>
+  <tabstop>refreshButton</tabstop>
+  <tabstop>intentSlider</tabstop>
+  <tabstop>exitButton</tabstop>
+ </tabstops>
  <resources>
   <include location="../wifi-direct-ui.qrc"/>
  </resources>
@@ -612,8 +719,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>settingsClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>639</x>
-     <y>448</y>
+     <x>229</x>
+     <y>462</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -628,8 +735,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>enableStateChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>207</x>
-     <y>48</y>
+     <x>212</x>
+     <y>40</y>
     </hint>
     <hint type="destinationlabel">
      <x>215</x>
@@ -644,12 +751,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
-     <y>200</y>
+     <x>696</x>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>786</x>
-     <y>211</y>
+     <x>784</x>
+     <y>205</y>
     </hint>
    </hints>
   </connection>
@@ -680,8 +787,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
      <y>54</y>
     </hint>
     <hint type="destinationlabel">
-     <x>692</x>
-     <y>93</y>
+     <x>696</x>
+     <y>90</y>
     </hint>
    </hints>
   </connection>
@@ -692,12 +799,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>786</x>
-     <y>211</y>
+     <x>784</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
-     <x>692</x>
-     <y>200</y>
+     <x>696</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -717,6 +824,54 @@ QSpinBox::down-arrow:off { /* off state when value in min */
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>connectButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cancelConnectClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>751</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>802</x>
+     <y>287</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>connectButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>acceptConnectClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>693</x>
+     <y>440</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>799</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pinRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pinLineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>497</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>backClicked()</slot>
@@ -727,5 +882,7 @@ QSpinBox::down-arrow:off { /* off state when value in min */
   <slot>channelChanged(int)</slot>
   <slot>intentChanged(int)</slot>
   <slot>exitClicked()</slot>
+  <slot>cancelConnectClicked()</slot>
+  <slot>acceptConnectClicked()</slot>
  </slots>
 </ui>

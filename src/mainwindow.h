@@ -5,6 +5,7 @@
 #include "ui_mainwindow.h"
 #include "wpap2p.h"
 
+class QButtonGroup;
 class QStringListModel;
 
 class MainWindow : public QWidget, public Ui::MainWindow
@@ -23,14 +24,20 @@ private slots:
     void setWifiDirectEnabled(bool state);
 
 public slots:
+    void acceptConnectClicked();
     void backClicked();
+    void cancelConnectClicked();
     void devicesFounded(const QStringList &devices);
     void enableStateChanged(int state);
     void exitClicked();
     void settingsClicked();
 
+private slots:
+    void deviceSelected(const QModelIndex &index);
+
 private:
     Keyboard *keyboard;
+    QButtonGroup *buttonGroup;
     QStringListModel *devicesModel;
     WPAp2p *wpa;
 };
