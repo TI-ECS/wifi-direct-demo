@@ -389,6 +389,39 @@ QSpinBox::down-arrow:off { /* off state when value in min */
          </widget>
          <widget class="QWidget" name="settingsPage">
           <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="spacing">
+            <number>1</number>
+           </property>
+           <property name="topMargin">
+            <number>3</number>
+           </property>
+           <property name="bottomMargin">
+            <number>3</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <property name="spacing">
+              <number>20</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Device Name</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="nameLineEdit"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="namePushButton">
+               <property name="text">
+                <string>save</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
@@ -458,13 +491,6 @@ QSpinBox::down-arrow:off { /* off state when value in min */
               </widget>
              </item>
             </layout>
-           </item>
-           <item>
-            <widget class="Line" name="line">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -587,10 +613,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
             </widget>
            </item>
           </layout>
-          <zorder>line</zorder>
           <zorder>backButton</zorder>
           <zorder>verticalSpacer_2</zorder>
           <zorder></zorder>
+          <zorder>label_2</zorder>
+          <zorder>nameLineEdit</zorder>
+          <zorder>namePushButton</zorder>
          </widget>
          <widget class="QWidget" name="connectPage">
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -752,11 +780,11 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <hints>
     <hint type="sourcelabel">
      <x>696</x>
-     <y>194</y>
+     <y>251</y>
     </hint>
     <hint type="destinationlabel">
      <x>784</x>
-     <y>205</y>
+     <y>262</y>
     </hint>
    </hints>
   </connection>
@@ -768,11 +796,11 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <hints>
     <hint type="sourcelabel">
      <x>570</x>
-     <y>67</y>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>773</x>
-     <y>67</y>
+     <y>124</y>
     </hint>
    </hints>
   </connection>
@@ -784,11 +812,11 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <hints>
     <hint type="sourcelabel">
      <x>771</x>
-     <y>54</y>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
      <x>696</x>
-     <y>90</y>
+     <y>147</y>
     </hint>
    </hints>
   </connection>
@@ -800,11 +828,11 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <hints>
     <hint type="sourcelabel">
      <x>784</x>
-     <y>205</y>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
      <x>696</x>
-     <y>194</y>
+     <y>251</y>
     </hint>
    </hints>
   </connection>
@@ -872,6 +900,22 @@ QSpinBox::down-arrow:off { /* off state when value in min */
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>namePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setName()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>746</x>
+     <y>36</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>800</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>backClicked()</slot>
@@ -884,5 +928,6 @@ QSpinBox::down-arrow:off { /* off state when value in min */
   <slot>exitClicked()</slot>
   <slot>cancelConnectClicked()</slot>
   <slot>acceptConnectClicked()</slot>
+  <slot>setName()</slot>
  </slots>
 </ui>

@@ -22,6 +22,7 @@ enum ACTIONS {
     GETTING_STATUS,
     GETTING_PEER_INFORMATION,
     NONE,
+    SETTING_NAME,
     SCANNING,
     SCAN_RESULT,
     START_GROUP,
@@ -48,6 +49,7 @@ public slots:
     void setChannel(int value);
     void setEnabled(bool state);
     void setIntent(int value);
+    void setName(const QString &value);
     void start(Priority priority = InheritPriority);
     void startGroup();
 

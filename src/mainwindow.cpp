@@ -175,6 +175,12 @@ void MainWindow::groupStopped()
     startGroupButton->setText("Start Group");
 }
 
+void MainWindow::setName()
+{
+    QString name = nameLineEdit->text();
+    wpa->setName(name);
+}
+
 void MainWindow::settingsClicked()
 {
     backButton->setFocus(Qt::OtherFocusReason);

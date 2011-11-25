@@ -147,6 +147,10 @@ void WPAp2p::readWPAStandartOutput()
             qDebug() << "Scanning fails";
         actionsQueue.enqueue(actionStatus);
         break;
+    case SETTING_NAME:
+        if (value.contains("FAIL"))
+            qDebug() << "Setting name fails";
+        break;
     case SCAN_RESULT:
     {
         QString buffer;
@@ -218,6 +222,10 @@ void WPAp2p::run()
                     break;
                 case SCAN_RESULT:
                     WPAProcess.write(GET_PEERS);
+                    break;
+                case SETTING_NAME:
+                    WPAProcess.write(QString(SET_COMMAND).arg("device_name").
+                                     arg(action.value.toString()).toAscii());
                     break;
                 case START_GROUP:
                     WPAProcess.write(CREATE_GROUP);
@@ -322,4 +330,16 @@ void WPAp2p::setEnabled(bool state)
             currentAction = NONE;
         }
     }
+}
+
+void WPAp2p::setName(const QString &value)
+{
+    if (WPAPid == -1) return;
+
+    mutex.lock();
+
+    ActionValue action = {SETTING_NAME, value};
+    actionsQueue.enqueue(action);
+
+    mutex.unlock();
 }

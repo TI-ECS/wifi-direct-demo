@@ -32,6 +32,7 @@ public slots:
     void deviceUpdate(Device device);
     void enableStateChanged(int state);
     void exitClicked();
+    void setName();
     void settingsClicked();
 
 private slots:
