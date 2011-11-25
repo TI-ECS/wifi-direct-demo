@@ -7,14 +7,15 @@
 #include <sys/types.h>
 
 #define CREATE_GROUP "p2p_group_add\n"
+#define GET_PEER "p2p_peer %1\n"
 #define GET_PEERS "p2p_peers\n"
 #define GET_STATUS "status\n"
-#define P2P_FIND "p2p_find %1\n"
+#define P2P_FIND "p2p_find\n"
 #define REMOVE_GROUP "p2p_group_remove %1\n"
 #define SET_CHANNEL "p2p_set listen_channel %1\n"
 #define SET_COMMAND "set %1 %2\n"
 #define WPA_PROCESS_NAME "wpa_supplicant"
-#define TIMEOUT 20000           // 20s
+#define TIMEOUT 8000           // 8s
 
 
 Q_PID proc_find(const QString &name)
@@ -74,6 +75,14 @@ WPAp2p::~WPAp2p()
     WPAProcess.kill();
 }
 
+void WPAp2p::getPeer()
+{
+    if (WPAPid == -1) return;
+
+    ActionValue action = {SCAN_RESULT, 0};
+    actionsQueue.enqueue(action);
+}
+
 void WPAp2p::getPeers()
 {
     if (WPAPid == -1) return;
@@ -85,7 +94,6 @@ void WPAp2p::getPeers()
 void WPAp2p::readWPAStandartOutput()
 {
     QString value(WPAProcess.read(WPAProcess.bytesAvailable()));
-
 #if defined(DEBUG)
     logFile.write(QString("Current action: %1").
                   arg(currentAction).toAscii());
@@ -98,8 +106,6 @@ void WPAp2p::readWPAStandartOutput()
     ActionValue actionStatus = {GETTING_STATUS, 0};
     int index;
 
-    QStringList devices;
-
     mutex.lock();
     switch (currentAction) {
     case GETTING_STATUS:
@@ -108,6 +114,19 @@ void WPAp2p::readWPAStandartOutput()
                                   - index - 10));
         else
             return;
+        break;
+    case GETTING_PEER_INFORMATION:
+    {
+        static QString buf;
+        buf.append(value);
+        if (buf.endsWith("> ")) {
+            devices[currentDevice].setValues(buf);
+            emit deviceUpdate(devices[currentDevice]);
+            buf.clear();
+        } else {
+            goto end;
+        }
+    }
         break;
     case START_GROUP:
         if (value.contains("OK")) {
@@ -129,11 +148,26 @@ void WPAp2p::readWPAStandartOutput()
         actionsQueue.enqueue(actionStatus);
         break;
     case SCAN_RESULT:
-        devices = value.split("\n");
-        if (devices.length() > 2) {
-            devices.removeFirst(); devices.removeLast();
-            emit devicesFounded(devices);
+    {
+        QString buffer;
+        buffer.append(value);
+        if (buffer.endsWith("> ")) {
+            QStringList devs = buffer.split("\n");
+            foreach (const QString &dev, devs) {
+                if (dev.startsWith(">"))
+                    continue;
+                devices[dev] = Device(dev);
+                ActionValue action = {GETTING_PEER_INFORMATION, dev};
+                actionsQueue.enqueue(action);
+            }
+            buffer.clear();
+            if (devices.size())
+                emit devicesFounded(devices.values());
+        } else {
+            goto end;
         }
+    }
+        break;
     case CHANGE_INTENT:
         if (value.contains("FAIL"))
             qDebug() << "Change intent fails";
@@ -144,13 +178,15 @@ void WPAp2p::readWPAStandartOutput()
     }
 
     currentAction = NONE;
+
+end:
     mutex.unlock();
 }
 
 void WPAp2p::run()
 {
     while (1) {
-        sleep(1.5);
+        sleep(2.5);
         mutex.lock();
         if (currentAction == NONE) {
             if (!actionsQueue.isEmpty()) {
@@ -160,19 +196,25 @@ void WPAp2p::run()
                 switch (action.action) {
                 case CHANGE_CHANNEL:
                     WPAProcess.write(QString(SET_CHANNEL).
-                                     arg(action.value).toAscii());
+                                     arg(action.value.toInt()).toAscii());
                     break;
                 case CHANGE_INTENT:
                     WPAProcess.write(QString(SET_COMMAND).arg("p2p_go_intent").
-                                     arg(action.value).toAscii());
+                                     arg(action.value.toInt()).toAscii());
+                    break;
+                case GETTING_PEER_INFORMATION:
+                {
+                    QString d(action.value.toString());
+                    currentDevice = d;
+                    WPAProcess.write(QString(GET_PEER).
+                                     arg(d).toAscii());
+                }
                     break;
                 case GETTING_STATUS:
                     WPAProcess.write(GET_STATUS);
                     break;
                 case SCANNING:
-                    WPAProcess.write(QString(P2P_FIND).arg(TIMEOUT).
-                                     toAscii());
-                    QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
+                    WPAProcess.write(QString(P2P_FIND).toAscii());
                     break;
                 case SCAN_RESULT:
                     WPAProcess.write(GET_PEERS);
@@ -199,7 +241,6 @@ void WPAp2p::scan()
 
     ActionValue action = {SCANNING, 0};
     actionsQueue.enqueue(action);
-
     QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
 }
 
@@ -227,8 +268,9 @@ void WPAp2p::start(Priority priority)
         if (!WPAProcess.waitForStarted(-1))
             return;
 
-        ActionValue action = {SCANNING, 0};
-        actionsQueue.enqueue(action);
+        scan();
+    } else {
+        currentAction = NONE;
     }
 
     QThread::start(priority);

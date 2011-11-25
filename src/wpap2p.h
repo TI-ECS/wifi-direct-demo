@@ -1,21 +1,26 @@
 #ifndef _WPAP2P_H_
 #define _WPAP2P_H_
 
+#include "device.h"
+
 #if defined(DEBUG)
 #include <QFile>
 #endif
 
+#include <QHash>
 #include <QMutex>
 #include <QObject>
 #include <QProcess>
 #include <QQueue>
 #include <QThread>
+#include <QVariant>
 
 
 enum ACTIONS {
     CHANGE_CHANNEL,
     CHANGE_INTENT,
     GETTING_STATUS,
+    GETTING_PEER_INFORMATION,
     NONE,
     SCANNING,
     SCAN_RESULT,
@@ -25,7 +30,7 @@ enum ACTIONS {
 
 typedef struct ActionValue_ {
     ACTIONS action;
-    int value;
+    QVariant value;
 } ActionValue;
 
 class WPAp2p : public QThread
@@ -47,11 +52,13 @@ public slots:
     void startGroup();
 
 private slots:
+    void getPeer();
     void getPeers();
     void readWPAStandartOutput();
 
 signals:
-    void devicesFounded(const QStringList &devices);
+    void devicesFounded(const QList<Device> &devices);
+    void deviceUpdate(const Device &device);
     void enabled(bool started);
     void groupStarted();
     void groupStopped();
@@ -64,9 +71,11 @@ private:
     QFile logFile;
 #endif
 
+    QHash<QString, Device> devices;
     QMutex mutex;
     QProcess WPAProcess;
     QQueue<ActionValue> actionsQueue;
+    QString currentDevice;
     bool hasGroup;
     qint64 WPAPid;
 };

@@ -42,8 +42,10 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(focusChanged(QWidget*, QWidget*)));
     connect(wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
             SLOT(setText(const QString&)));
-    connect(wpa, SIGNAL(devicesFounded(const QStringList&)), this,
-            SLOT(devicesFounded(const QStringList&)));
+    connect(wpa, SIGNAL(devicesFounded(const QList<Device>&)), this,
+            SLOT(devicesFounded(const QList<Device>&)));
+    connect(wpa, SIGNAL(deviceUpdate(Device)), this,
+            SLOT(deviceUpdate(Device)));
     connect(wpa, SIGNAL(groupStarted()), this,
             SLOT(groupStarted()));
     connect(wpa, SIGNAL(groupStopped()), this,
@@ -102,10 +104,16 @@ void MainWindow::channelReleased()
     }
 }
 
-void MainWindow::devicesFounded(const QStringList &devices)
+void MainWindow::devicesFounded(const QList<Device> &devices)
 {
+    QStringList devs;
+    this->devices = devices;
+    foreach (Device d, devices) {
+        devs << d.value();
+    }
+
     delete devicesModel;
-    devicesModel = new QStringListModel(devices);
+    devicesModel = new QStringListModel(devs);
     listView->setModel(devicesModel);
 }
 
@@ -114,6 +122,20 @@ void MainWindow::deviceSelected(const QModelIndex &index)
     pinLineEdit->clear();
     pbcRadioButton->setChecked(true);
     stackedWidget->setCurrentWidget(connectPage);
+}
+
+void MainWindow::deviceUpdate(Device device)
+{
+    int index = 0;
+    QStringList devs;
+    foreach (Device d, devices) {
+        if (d.address() == device.address()) {
+            QModelIndex i = listView->model()->index(index, 0);
+            listView->model()->setData(i, device.value());
+            break;
+        }
+        index++;
+    }
 }
 
 void MainWindow::enableStateChanged(int state)

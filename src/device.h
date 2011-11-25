@@ -7,15 +7,17 @@ class Device
 {
 
 public:
+    Device();
     Device(const QString &address);
     virtual ~Device();
 
+    QString address();
     void setValues(const QString &values);
-    const QString value();
+    QString value();
 
 private:
     QString device_name;
     QString device_number;
-    QString address;
+    QString device_address;
 };
 #endif /* _DEVICE_H_ */

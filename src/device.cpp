@@ -1,19 +1,51 @@
 #include "device.h"
 
+#include <QDebug>
+#include <QString>
+#include <QStringList>
+
+Device::Device()
+{
+}
+
 Device::Device(const QString &address)
 {
-    this->address = address;
+    device_address = address;
 }
 
 Device::~Device()
 {
 }
 
-void Device::setValues(const QString &values)
+QString Device::address()
 {
+    return device_address;
 }
 
-const QString Device::value()
+void Device::setValues(const QString &values)
 {
-    return address;
+    static int count;
+    QStringList fields = values.split("\n");
+
+    count = 0;
+    foreach (QString f, fields) {
+        if (f.startsWith("device_name")) {
+            device_name = f.mid(12); //12 == device_name=
+            count++;
+        } else if (f.startsWith("device_number")) {
+            device_number = f.mid(14); //14 == device_number=
+            count++;
+        } else if (f.startsWith("address")) {
+            device_address = f.mid(8); //8 == address=
+            count++;
+        }
+
+        if (count == 3)
+            break;
+    }
+}
+
+QString Device::value()
+{
+    return device_name + " - " + device_address;
 }

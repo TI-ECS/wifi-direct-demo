@@ -1,6 +1,7 @@
 #ifndef _MAINWINDOW_H_
 #define _MAINWINDOW_H_
 
+#include "device.h"
 #include "keyboard.h"
 #include "ui_mainwindow.h"
 #include "wpap2p.h"
@@ -27,7 +28,8 @@ public slots:
     void acceptConnectClicked();
     void backClicked();
     void cancelConnectClicked();
-    void devicesFounded(const QStringList &devices);
+    void devicesFounded(const QList<Device> &devices);
+    void deviceUpdate(Device device);
     void enableStateChanged(int state);
     void exitClicked();
     void settingsClicked();
@@ -38,6 +40,7 @@ private slots:
 private:
     Keyboard *keyboard;
     QButtonGroup *buttonGroup;
+    QList<Device> devices;
     QStringListModel *devicesModel;
     WPAp2p *wpa;
 };
