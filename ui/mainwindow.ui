@@ -623,7 +623,7 @@ QSpinBox::down-arrow:off { /* off state when value in min */
          <widget class="QWidget" name="connectPage">
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="spacing">
-            <number>25</number>
+            <number>19</number>
            </property>
            <item>
             <widget class="QRadioButton" name="pbcRadioButton">
@@ -672,6 +672,13 @@ QSpinBox::down-arrow:off { /* off state when value in min */
               </widget>
              </item>
             </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="goCheckBox">
+             <property name="text">
+              <string>Do you want to be the group owner ?</string>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="verticalSpacer_3">
@@ -780,11 +787,11 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <hints>
     <hint type="sourcelabel">
      <x>696</x>
-     <y>251</y>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>784</x>
-     <y>262</y>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -796,7 +803,7 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <hints>
     <hint type="sourcelabel">
      <x>570</x>
-     <y>124</y>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
      <x>773</x>
@@ -816,7 +823,7 @@ QSpinBox::down-arrow:off { /* off state when value in min */
     </hint>
     <hint type="destinationlabel">
      <x>696</x>
-     <y>147</y>
+     <y>122</y>
     </hint>
    </hints>
   </connection>
@@ -828,11 +835,11 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <hints>
     <hint type="sourcelabel">
      <x>784</x>
-     <y>262</y>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>696</x>
-     <y>251</y>
+     <y>207</y>
     </hint>
    </hints>
   </connection>
@@ -913,6 +920,22 @@ QSpinBox::down-arrow:off { /* off state when value in min */
     <hint type="destinationlabel">
      <x>800</x>
      <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>goCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pinLineEdit</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>27</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>

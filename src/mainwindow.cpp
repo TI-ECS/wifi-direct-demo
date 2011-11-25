@@ -77,7 +77,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::acceptConnectClicked()
 {
-    qDebug() << "Connect";
+    bool go = (goCheckBox->checkState() == Qt::Checked) ? true : false;
+
+    if (buttonGroup->checkedButton() == pbcRadioButton)
+        wpa->connectPBC(selectedDevice, go, 7);
+    else
+        wpa->connectPIN(selectedDevice, pinLineEdit->text(), go);
+
+    stackedWidget->setCurrentWidget(mainPage);
 }
 
 void MainWindow::backClicked()
@@ -120,6 +127,11 @@ void MainWindow::devicesFounded(const QList<Device> &devices)
 
 void MainWindow::deviceSelected(const QModelIndex &index)
 {
+    selectedDevice = index.data().toString();
+    int i = selectedDevice.indexOf("-");
+    if (i != -1)
+        selectedDevice = selectedDevice.mid(i + 2); // "- "
+
     pinLineEdit->clear();
     pbcRadioButton->setChecked(true);
     stackedWidget->setCurrentWidget(connectPage);

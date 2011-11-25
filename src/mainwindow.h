@@ -42,6 +42,7 @@ private:
     Keyboard *keyboard;
     QButtonGroup *buttonGroup;
     QList<Device> devices;
+    QString selectedDevice;
     QStringListModel *devicesModel;
     WPAp2p *wpa;
 };

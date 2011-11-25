@@ -19,6 +19,7 @@
 enum ACTIONS {
     CHANGE_CHANNEL,
     CHANGE_INTENT,
+    CONNECT,
     GETTING_STATUS,
     GETTING_PEER_INFORMATION,
     NONE,
@@ -45,6 +46,8 @@ public:
     void run();
 
 public slots:
+    void connectPBC(const QString &device, bool go, int intent);
+    void connectPIN(const QString &device, const QString &pin, bool go);
     void scan();
     void setChannel(int value);
     void setEnabled(bool state);
@@ -63,6 +66,7 @@ protected:
     int exec();
 
 signals:
+    void connectCommandFinished();
     void devicesFounded(const QList<Device> &devices);
     void deviceUpdate(const Device &device);
     void enabled(bool started);

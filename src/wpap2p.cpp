@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <sys/types.h>
 
+#define CREATE_CONNECTION "p2p_connect %1 %2 %3 %4\n"
 #define CREATE_GROUP "p2p_group_add\n"
 #define GET_PEER "p2p_peer %1\n"
 #define GET_PEERS "p2p_peers\n"
@@ -75,6 +76,41 @@ WPAp2p::~WPAp2p()
     WPAProcess.kill();
 }
 
+void WPAp2p::connectPBC(const QString &device, bool go, int intent)
+{
+    QString connection;
+
+    if (go) {
+        QString go_intent = QString("go_intent=%1").arg(intent);
+        connection = QString(CREATE_CONNECTION).arg(device).arg("pbc").
+            arg("auth").arg(go_intent);
+    } else {
+        connection = QString(CREATE_CONNECTION).arg(device).arg("pbc");
+    }
+
+    mutex.lock();
+    ActionValue action = {CONNECT, connection};
+    actionsQueue.enqueue(action);
+    mutex.unlock();
+}
+
+void WPAp2p::connectPIN(const QString &device, const QString &pin, bool go)
+{
+    QString connection;
+
+    if (go) {
+        connection = QString(CREATE_CONNECTION).arg(device).arg("pin").
+            arg("auth");
+    } else {
+        connection = QString(CREATE_CONNECTION).arg(device).arg("pin").
+            arg(pin);
+    }
+
+    mutex.lock();
+    ActionValue action = {CONNECT, connection};
+    actionsQueue.enqueue(action);
+    mutex.unlock();
+}
 
 int WPAp2p::exec()
 {
@@ -94,6 +130,9 @@ int WPAp2p::exec()
                 case CHANGE_INTENT:
                     WPAProcess.write(QString(SET_COMMAND).arg("p2p_go_intent").
                                      arg(action.value.toInt()).toAscii());
+                    break;
+                case CONNECT:
+                    WPAProcess.write(action.value.toString().toAscii());
                     break;
                 case GETTING_PEER_INFORMATION:
                 {
@@ -233,6 +272,17 @@ void WPAp2p::readWPAStandartOutput()
         } else {
             goto end;
         }
+    }
+        break;
+    case CONNECT:
+    {
+        QString buffer;
+        buffer.append(value);
+        if (buffer.endsWith("> ")) {
+            emit connectCommandFinished();
+            buffer.clear();
+        } else
+            goto end;
     }
         break;
     case CHANGE_INTENT:
