@@ -47,5 +47,8 @@ void Device::setValues(const QString &values)
 
 QString Device::value()
 {
+    if (device_name.isEmpty())
+        return device_address;
+
     return device_name + " - " + device_address;
 }
