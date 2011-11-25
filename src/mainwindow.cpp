@@ -141,10 +141,15 @@ void MainWindow::deviceUpdate(Device device)
 
 void MainWindow::enableStateChanged(int state)
 {
-    if (state == Qt::Checked)
+    if (state == Qt::Checked) {
         wpa->setEnabled(true);
-    else
+    } else {
         wpa->setEnabled(false);
+        devices.clear();
+        QStringListModel *model =
+            qobject_cast<QStringListModel*>(listView->model());
+        model->removeRows(0, model->rowCount());
+    }
 }
 
 void MainWindow::exitClicked()
