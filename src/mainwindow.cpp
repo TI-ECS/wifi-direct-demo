@@ -67,7 +67,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    wpa->terminate();
+    wpa->stop();
+    wpa->wait(2500000); // 2.5s
 
     delete buttonGroup;
     delete devicesModel;

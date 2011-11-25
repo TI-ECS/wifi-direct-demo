@@ -52,11 +52,15 @@ public slots:
     void setName(const QString &value);
     void start(Priority priority = InheritPriority);
     void startGroup();
+    void stop();
 
 private slots:
     void getPeer();
     void getPeers();
     void readWPAStandartOutput();
+
+protected:
+    int exec();
 
 signals:
     void devicesFounded(const QList<Device> &devices);
@@ -78,7 +82,7 @@ private:
     QProcess WPAProcess;
     QQueue<ActionValue> actionsQueue;
     QString currentDevice;
-    bool hasGroup;
+    bool active, hasGroup;
     qint64 WPAPid;
 };
 

@@ -52,7 +52,7 @@ WPAp2p::WPAp2p(QObject *parent)
     :QThread(parent),
      WPAProcess(0)
 {
-    hasGroup = false;
+    active = hasGroup = false;
     currentAction = NONE;
     connect(&WPAProcess, SIGNAL(readyReadStandardOutput()),
             this, SLOT(readWPAStandartOutput()));
@@ -75,20 +75,83 @@ WPAp2p::~WPAp2p()
     WPAProcess.kill();
 }
 
+
+int WPAp2p::exec()
+{
+    while (active) {
+        sleep(2.5);
+        mutex.lock();
+        if (currentAction == NONE) {
+            if (!actionsQueue.isEmpty()) {
+                ActionValue action = actionsQueue.dequeue();
+                currentAction = action.action;
+
+                switch (action.action) {
+                case CHANGE_CHANNEL:
+                    WPAProcess.write(QString(SET_CHANNEL).
+                                     arg(action.value.toInt()).toAscii());
+                    break;
+                case CHANGE_INTENT:
+                    WPAProcess.write(QString(SET_COMMAND).arg("p2p_go_intent").
+                                     arg(action.value.toInt()).toAscii());
+                    break;
+                case GETTING_PEER_INFORMATION:
+                {
+                    QString d(action.value.toString());
+                    currentDevice = d;
+                    WPAProcess.write(QString(GET_PEER).
+                                     arg(d).toAscii());
+                }
+                    break;
+                case GETTING_STATUS:
+                    WPAProcess.write(GET_STATUS);
+                    break;
+                case SCANNING:
+                    WPAProcess.write(QString(P2P_FIND).toAscii());
+                    break;
+                case SCAN_RESULT:
+                    WPAProcess.write(GET_PEERS);
+                    break;
+                case SETTING_NAME:
+                    WPAProcess.write(QString(SET_COMMAND).arg("device_name").
+                                     arg(action.value.toString()).toAscii());
+                    break;
+                case START_GROUP:
+                    WPAProcess.write(CREATE_GROUP);
+                    break;
+                case STOP_GROUP:
+                    WPAProcess.write(QString(REMOVE_GROUP).
+                                     arg("wlan0").toAscii());
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        mutex.unlock();
+    }
+
+    return 0;
+}
+
 void WPAp2p::getPeer()
 {
     if (WPAPid == -1) return;
 
+    mutex.lock();
     ActionValue action = {SCAN_RESULT, 0};
     actionsQueue.enqueue(action);
+    mutex.unlock();
 }
 
 void WPAp2p::getPeers()
 {
     if (WPAPid == -1) return;
 
+    mutex.lock();
     ActionValue action = {SCAN_RESULT, 0};
     actionsQueue.enqueue(action);
+    mutex.unlock();
 }
 
 void WPAp2p::readWPAStandartOutput()
@@ -189,83 +252,41 @@ end:
 
 void WPAp2p::run()
 {
-    while (1) {
-        sleep(2.5);
-        mutex.lock();
-        if (currentAction == NONE) {
-            if (!actionsQueue.isEmpty()) {
-                ActionValue action = actionsQueue.dequeue();
-                currentAction = action.action;
+    active = true;
+    exec();
 
-                switch (action.action) {
-                case CHANGE_CHANNEL:
-                    WPAProcess.write(QString(SET_CHANNEL).
-                                     arg(action.value.toInt()).toAscii());
-                    break;
-                case CHANGE_INTENT:
-                    WPAProcess.write(QString(SET_COMMAND).arg("p2p_go_intent").
-                                     arg(action.value.toInt()).toAscii());
-                    break;
-                case GETTING_PEER_INFORMATION:
-                {
-                    QString d(action.value.toString());
-                    currentDevice = d;
-                    WPAProcess.write(QString(GET_PEER).
-                                     arg(d).toAscii());
-                }
-                    break;
-                case GETTING_STATUS:
-                    WPAProcess.write(GET_STATUS);
-                    break;
-                case SCANNING:
-                    WPAProcess.write(QString(P2P_FIND).toAscii());
-                    break;
-                case SCAN_RESULT:
-                    WPAProcess.write(GET_PEERS);
-                    break;
-                case SETTING_NAME:
-                    WPAProcess.write(QString(SET_COMMAND).arg("device_name").
-                                     arg(action.value.toString()).toAscii());
-                    break;
-                case START_GROUP:
-                    WPAProcess.write(CREATE_GROUP);
-                    break;
-                case STOP_GROUP:
-                    WPAProcess.write(QString(REMOVE_GROUP).
-                                     arg("wlan0").toAscii());
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-        mutex.unlock();
-    }
+    QThread::exit();
 }
 
 void WPAp2p::scan()
 {
     if (WPAPid == -1) return;
 
+    mutex.lock();
     ActionValue action = {SCANNING, 0};
     actionsQueue.enqueue(action);
     QTimer::singleShot(TIMEOUT, this, SLOT(getPeers()));
+    mutex.unlock();
 }
 
 void WPAp2p::setChannel(int value)
 {
     if (WPAPid == -1) return;
 
+    mutex.lock();
     ActionValue action = {CHANGE_CHANNEL, value};
     actionsQueue.enqueue(action);
+    mutex.unlock();
 }
 
 void WPAp2p::setIntent(int value)
 {
     if (WPAPid == -1) return;
 
+    mutex.lock();
     ActionValue action = {CHANGE_INTENT, value};
     actionsQueue.enqueue(action);
+    mutex.unlock();
 }
 
 void WPAp2p::start(Priority priority)
@@ -294,7 +315,9 @@ void WPAp2p::startGroup()
     else
         action.action = START_GROUP;
 
+    mutex.lock();
     actionsQueue.enqueue(action);
+    mutex.unlock();
 }
 
 void WPAp2p::setEnabled(bool state)
@@ -341,5 +364,12 @@ void WPAp2p::setName(const QString &value)
     ActionValue action = {SETTING_NAME, value};
     actionsQueue.enqueue(action);
 
+    mutex.unlock();
+}
+
+void WPAp2p::stop()
+{
+    mutex.lock();
+    active = false;
     mutex.unlock();
 }
