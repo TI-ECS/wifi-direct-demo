@@ -14,14 +14,26 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QRadioButton, QCheckBox {
+   <string notr="true">QListView::item {
+    height: 36px;
+}
+
+QLineEdit {
+	height: 30px;
+}
+
+QTextEdit {
+	font: 75 24pt &quot;DejaVu LGC Sans&quot;;
+}
+
+QRadioButton, QCheckBox {
 	spacing: 10px;
 }
 QCheckBox::indicator, QRadioButton::indicator {
     width: 35px;
     height: 35px;
 }
-QLabel, QCheckBox, QRadioButton, QListView::item {
+QLabel, QCheckBox, QRadioButton {
     font: 12pt &quot;DejaVu LGC Sans Mono&quot;;
 }
 QScrollBar:vertical {
@@ -640,22 +652,9 @@ QSpinBox::down-arrow:off { /* off state when value in min */
              <item>
               <widget class="QRadioButton" name="pinRadioButton">
                <property name="text">
-                <string>PIN</string>
+                <string>PIN    </string>
                </property>
               </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
              <item>
               <widget class="QLineEdit" name="pinLineEdit">
