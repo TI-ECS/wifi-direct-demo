@@ -12,6 +12,7 @@
 #include <QObject>
 #include <QProcess>
 #include <QQueue>
+#include <QSharedPointer>
 #include <QThread>
 #include <QVariant>
 
@@ -67,8 +68,8 @@ protected:
 
 signals:
     void connectCommandFinished();
-    void devicesFounded(const QList<Device> &devices);
-    void deviceUpdate(const Device &device);
+    void devicesFounded(const QList<QSharedPointer<Device> > &devices);
+    void deviceUpdate(Device *device);
     void enabled(bool started);
     void groupStarted();
     void groupStopped();
@@ -81,7 +82,7 @@ private:
     QFile logFile;
 #endif
 
-    QHash<QString, Device> devices;
+    QHash<QString, QSharedPointer<Device> > devices;
     QMutex mutex;
     QProcess WPAProcess;
     QQueue<ActionValue> actionsQueue;

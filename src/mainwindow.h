@@ -28,8 +28,8 @@ public slots:
     void acceptConnectClicked();
     void backClicked();
     void cancelConnectClicked();
-    void devicesFounded(const QList<Device> &devices);
-    void deviceUpdate(Device device);
+    void devicesFounded(const QList<QSharedPointer<Device> > &devices);
+    void deviceUpdate(Device *device);
     void enableStateChanged(int state);
     void exitClicked();
     void setName();
@@ -41,7 +41,7 @@ private slots:
 private:
     Keyboard *keyboard;
     QButtonGroup *buttonGroup;
-    QList<Device> devices;
+    QList<QSharedPointer<Device> > devices;
     QString selectedDevice;
     QStringListModel *devicesModel;
     WPAp2p *wpa;

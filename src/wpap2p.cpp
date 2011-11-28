@@ -222,8 +222,8 @@ void WPAp2p::readWPAStandartOutput()
         static QString buf;
         buf.append(value);
         if (buf.endsWith("> ")) {
-            devices[currentDevice].setValues(buf);
-            emit deviceUpdate(devices[currentDevice]);
+            devices[currentDevice].data()->setValues(buf);
+            emit deviceUpdate(devices[currentDevice].data());
             buf.clear();
         } else {
             goto end;
@@ -262,7 +262,7 @@ void WPAp2p::readWPAStandartOutput()
             foreach (const QString &dev, devs) {
                 if (dev.startsWith(">"))
                     continue;
-                devices[dev] = Device(dev);
+                devices[dev] = QSharedPointer<Device>(new Device(dev));
                 ActionValue action = {GETTING_PEER_INFORMATION, dev};
                 actionsQueue.enqueue(action);
             }

@@ -5,10 +5,20 @@
 #include <QStringList>
 
 Device::Device()
+    :QObject(0)
 {
 }
 
-Device::Device(const QString &address)
+Device::Device(const Device &other, QObject *parent)
+    :QObject(parent)
+{
+    device_name = other.device_name;
+    device_number = other.device_number;
+    device_address = other.device_address;
+}
+
+Device::Device(const QString &address, QObject *parent)
+    :QObject(parent)
 {
     device_address = address;
 }
@@ -43,6 +53,8 @@ void Device::setValues(const QString &values)
         if (count == 3)
             break;
     }
+
+    emit valueChanged();
 }
 
 QString Device::value()
