@@ -27,11 +27,6 @@ Device::~Device()
 {
 }
 
-QString Device::address()
-{
-    return device_address;
-}
-
 void Device::setValues(const QString &values)
 {
     static int count;
@@ -54,13 +49,5 @@ void Device::setValues(const QString &values)
             break;
     }
 
-    emit valueChanged();
-}
-
-QString Device::value()
-{
-    if (device_name.isEmpty())
-        return device_address;
-
-    return device_name + " - " + device_address;
+    emit valueChanged(this);
 }

@@ -6,6 +6,8 @@
 #include "ui_mainwindow.h"
 #include "wpap2p.h"
 
+class DeviceListDelegate;
+class DevicesListModel;
 class QButtonGroup;
 class QStringListModel;
 
@@ -28,8 +30,6 @@ public slots:
     void acceptConnectClicked();
     void backClicked();
     void cancelConnectClicked();
-    void devicesFounded(const QList<QSharedPointer<Device> > &devices);
-    void deviceUpdate(Device *device);
     void enableStateChanged(int state);
     void exitClicked();
     void setName();
@@ -41,9 +41,9 @@ private slots:
 private:
     Keyboard *keyboard;
     QButtonGroup *buttonGroup;
-    QList<QSharedPointer<Device> > devices;
     QString selectedDevice;
-    QStringListModel *devicesModel;
+    DeviceListDelegate *deviceDelegate;
+    DevicesListModel *devicesModel;
     WPAp2p *wpa;
 };
 

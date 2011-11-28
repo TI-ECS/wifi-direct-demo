@@ -1,10 +1,11 @@
 #include "mainwindow.h"
 
+#include "devicelistdelegate.h"
+#include "deviceslistmodel.h"
 #include "keyboard.h"
 
 #include <QDebug>
 #include <QLineEdit>
-#include <QStringListModel>
 
 #if !defined(DEBUG)
 #include <QWSServer>
@@ -17,7 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     keyboard = new Keyboard;
     keyboard->setVisible(false);
     layout()->addWidget(keyboard);
-    devicesModel = NULL;
+    devicesModel = new DevicesListModel;
+    listView->setModel(devicesModel);
+    deviceDelegate = new DeviceListDelegate;
+    listView->setItemDelegate(deviceDelegate);
     wpa = new WPAp2p;
 
 #if !defined(DEBUG)
@@ -43,9 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
             SLOT(setText(const QString&)));
     connect(wpa, SIGNAL(devicesFounded(const QList<QSharedPointer<Device> >&)),
-            this, SLOT(devicesFounded(const QList<QSharedPointer<Device> >&)));
-    connect(wpa, SIGNAL(deviceUpdate(Device *)), this,
-            SLOT(deviceUpdate(Device *)));
+            devicesModel,
+            SLOT(setDevicesList(const QList<QSharedPointer<Device> >&)));
     connect(wpa, SIGNAL(groupStarted()), this,
             SLOT(groupStarted()));
     connect(wpa, SIGNAL(groupStopped()), this,
@@ -72,6 +75,7 @@ MainWindow::~MainWindow()
 
     delete buttonGroup;
     delete devicesModel;
+    delete deviceDelegate;
     delete wpa;
 }
 
@@ -97,8 +101,7 @@ void MainWindow::cancelConnectClicked()
     stackedWidget->setCurrentWidget(mainPage);
 }
 
-void MainWindow::channelReleased()
-{
+void MainWindow::channelReleased(){
     int value = channelSlider->value();
     if (value < 4) {
         channelSlider->setValue(1);
@@ -112,43 +115,14 @@ void MainWindow::channelReleased()
     }
 }
 
-void MainWindow::devicesFounded(const QList<QSharedPointer<Device> > &devices)
-{
-    QStringList devs;
-    this->devices = devices;
-    foreach (QSharedPointer<Device> d, devices) {
-        devs << d.data()->value();
-    }
-
-    delete devicesModel;
-    devicesModel = new QStringListModel(devs);
-    listView->setModel(devicesModel);
-}
-
 void MainWindow::deviceSelected(const QModelIndex &index)
 {
-    selectedDevice = index.data().toString();
-    int i = selectedDevice.indexOf("-");
-    if (i != -1)
-        selectedDevice = selectedDevice.mid(i + 2); // "- "
+    selectedDevice = index.data(Qt::UserRole).
+        value<Device *>()->address();
 
     pinLineEdit->clear();
     pbcRadioButton->setChecked(true);
     stackedWidget->setCurrentWidget(connectPage);
-}
-
-void MainWindow::deviceUpdate(Device *device)
-{
-    int index = 0;
-    QStringList devs;
-    foreach (QSharedPointer<Device> d, devices) {
-        if (d.data()->address() == device->address()) {
-            QModelIndex i = listView->model()->index(index, 0);
-            listView->model()->setData(i, device->value());
-            break;
-        }
-        index++;
-    }
 }
 
 void MainWindow::enableStateChanged(int state)
@@ -157,9 +131,8 @@ void MainWindow::enableStateChanged(int state)
         wpa->setEnabled(true);
     } else {
         wpa->setEnabled(false);
-        devices.clear();
-        QStringListModel *model =
-            qobject_cast<QStringListModel*>(listView->model());
+        DevicesListModel *model =
+            qobject_cast<DevicesListModel *>(listView->model());
         model->removeRows(0, model->rowCount());
     }
 }

@@ -14,12 +14,12 @@ public:
     Device(const QString &address, QObject *parent = 0);
     virtual ~Device();
 
-    QString address();
+    QString address() { return device_address; }
+    QString name() { return device_name; }
     void setValues(const QString &values);
-    QString value();
 
 signals:
-    void valueChanged();
+    void valueChanged(Device *dev);
 
 private:
     QString device_name;
