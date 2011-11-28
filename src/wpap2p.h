@@ -31,6 +31,13 @@ enum ACTIONS {
     STOP_GROUP
 };
 
+enum WPS_METHOD {
+    PBC,
+    PBC_GO,
+    PIN,
+    PIN_GO
+};
+
 typedef struct ActionValue_ {
     ACTIONS action;
     QVariant value;
@@ -73,10 +80,12 @@ signals:
     void enabled(bool started);
     void groupStarted();
     void groupStopped();
+    void pinCode(const QString &pin);
     void status(const QString &status);
 
 private:
     ACTIONS currentAction;
+    WPS_METHOD wpsMethod;
 
 #if defined(DEBUG)
     QFile logFile;

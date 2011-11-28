@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QLineEdit>
+#include <QMessageBox>
 
 #if !defined(DEBUG)
 #include <QWSServer>
@@ -53,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(groupStarted()));
     connect(wpa, SIGNAL(groupStopped()), this,
             SLOT(groupStopped()));
+    connect(wpa, SIGNAL(pinCode(const QString&)), this,
+            SLOT(showPinCode(const QString&)));
     connect(wpa, SIGNAL(enabled(bool)), this,
             SLOT(setWifiDirectEnabled(bool)));
     connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
@@ -84,7 +87,7 @@ void MainWindow::acceptConnectClicked()
     bool go = (goCheckBox->checkState() == Qt::Checked) ? true : false;
 
     if (buttonGroup->checkedButton() == pbcRadioButton)
-        wpa->connectPBC(selectedDevice, go, 7);
+        wpa->connectPBC(selectedDevice, go, intentSlider->value());
     else
         wpa->connectPIN(selectedDevice, pinLineEdit->text(), go);
 
@@ -187,4 +190,9 @@ void MainWindow::setWifiDirectEnabled(bool state)
         wifiDirectStatusLabel->setText("Disabled");
         startGroupButton->setText("Start Group");
     }
+}
+
+void MainWindow::showPinCode(const QString &pin)
+{
+    QMessageBox::information(this, "PIN CODE", pin);
 }

@@ -84,8 +84,10 @@ void WPAp2p::connectPBC(const QString &device, bool go, int intent)
         QString go_intent = QString("go_intent=%1").arg(intent);
         connection = QString(CREATE_CONNECTION).arg(device).arg("pbc").
             arg("auth").arg(go_intent);
+        wpsMethod = PBC_GO;
     } else {
         connection = QString(CREATE_CONNECTION).arg(device).arg("pbc");
+        wpsMethod = PBC;
     }
 
     mutex.lock();
@@ -101,9 +103,11 @@ void WPAp2p::connectPIN(const QString &device, const QString &pin, bool go)
     if (go) {
         connection = QString(CREATE_CONNECTION).arg(device).arg("pin").
             arg("auth");
+        wpsMethod = PIN_GO;
     } else {
         connection = QString(CREATE_CONNECTION).arg(device).arg("pin").
             arg(pin);
+        wpsMethod = PIN;
     }
 
     mutex.lock();
@@ -279,6 +283,10 @@ void WPAp2p::readWPAStandartOutput()
         QString buffer;
         buffer.append(value);
         if (buffer.endsWith("> ")) {
+            if (wpsMethod == PIN_GO) {
+                QString pin = buffer.split("\n").at(0);
+                emit pinCode(pin);
+            }
             emit connectCommandFinished();
             buffer.clear();
         } else
