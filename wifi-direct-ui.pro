@@ -28,7 +28,11 @@ isEmpty(INSTALLDIR) {
 message ("The application will be installed in $$INSTALLDIR")
 
 target.path = $$INSTALLDIR/usr/bin
-INSTALLS += target
+
+scripts.path = $$INSTALLDIR/usr/bin
+scripts.files = scripts/*
+
+INSTALLS += scripts target
 
 FORMS += ui/mainwindow.ui
 
