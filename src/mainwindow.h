@@ -4,12 +4,13 @@
 #include "device.h"
 #include "keyboard.h"
 #include "ui_mainwindow.h"
-#include "wpap2p.h"
 
 class DeviceListDelegate;
 class DevicesListModel;
+class FiW1Wpa_supplicant1InterfaceP2PDeviceInterface;
 class QButtonGroup;
 class QStringListModel;
+class Wpa;
 
 class MainWindow : public QWidget, public Ui::MainWindow
 {
@@ -40,12 +41,13 @@ private slots:
     void showPinCode(const QString &pin);
 
 private:
+    DeviceListDelegate *deviceDelegate;
+    DevicesListModel *devicesModel;
+    FiW1Wpa_supplicant1InterfaceP2PDeviceInterface *p2pInterface;
     Keyboard *keyboard;
     QButtonGroup *buttonGroup;
     QString selectedDevice;
-    DeviceListDelegate *deviceDelegate;
-    DevicesListModel *devicesModel;
-    WPAp2p *wpa;
+    Wpa *wpa;
 };
 
 

@@ -3,6 +3,7 @@
 #include "devicelistdelegate.h"
 #include "deviceslistmodel.h"
 #include "keyboard.h"
+#include "wpa.h"
 
 #include <QDebug>
 #include <QLineEdit>
@@ -23,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
     listView->setModel(devicesModel);
     deviceDelegate = new DeviceListDelegate;
     listView->setItemDelegate(deviceDelegate);
-    wpa = new WPAp2p;
 
 #if !defined(DEBUG)
     QWSServer *qws = QWSServer::instance();
@@ -31,13 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
         qws->setCursorVisible(false);
 #endif
 
-    if (wpa->isRunning()) {
-        wifiDirectCheckBox->setCheckState(Qt::Checked);
-    } else {
-        wifiDirectCheckBox->setCheckState(Qt::Unchecked);
-        wifiDirectStatusLabel->setText("Disabled");
-    }
-
+    wpa = new Wpa;
     buttonGroup = new QButtonGroup(this);
     buttonGroup->addButton(pbcRadioButton);
     buttonGroup->addButton(pinRadioButton);
@@ -47,49 +41,45 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(focusChanged(QWidget*, QWidget*)));
     connect(wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
             SLOT(setText(const QString&)));
-    connect(wpa, SIGNAL(devicesFounded(const QList<QSharedPointer<Device> >&)),
-            devicesModel,
-            SLOT(setDevicesList(const QList<QSharedPointer<Device> >&)));
-    connect(wpa, SIGNAL(groupStarted()), this,
+    // connect(wpa, SIGNAL(devicesFounded(const QList<QSharedPointer<Device> >&)),
+    //         devicesModel,
+    //         SLOT(setDevicesList(const QList<QSharedPointer<Device> >&)));
+    connect(wpa, SIGNAL(groupHasStarted()), this,
             SLOT(groupStarted()));
-    connect(wpa, SIGNAL(groupStopped()), this,
-            SLOT(groupStopped()));
-    connect(wpa, SIGNAL(pinCode(const QString&)), this,
-            SLOT(showPinCode(const QString&)));
-    connect(wpa, SIGNAL(enabled(bool)), this,
-            SLOT(setWifiDirectEnabled(bool)));
-    connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
-            SLOT(setIntent(int)));
-    connect(listView, SIGNAL(doubleClicked(const QModelIndex&)), this,
-            SLOT(deviceSelected(const QModelIndex&)));
-    connect(startGroupButton, SIGNAL(clicked()), wpa,
-            SLOT(startGroup()));
-    connect(refreshButton, SIGNAL(clicked()), wpa,
-            SLOT(scan()));
-    connect(channelSlider, SIGNAL(sliderReleased()), this,
-            SLOT(channelReleased()));
-    wpa->start();
+    // connect(wpa, SIGNAL(groupStopped()), this,
+    //         SLOT(groupStopped()));
+    // connect(wpa, SIGNAL(pinCode(const QString&)), this,
+    //         SLOT(showPinCode(const QString&)));
+    // connect(wpa, SIGNAL(enabled(bool)), this,
+    //         SLOT(setWifiDirectEnabled(bool)));
+    // connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
+    //         SLOT(setIntent(int)));
+    // connect(listView, SIGNAL(doubleClicked(const QModelIndex&)), this,
+    //         SLOT(deviceSelected(const QModelIndex&)));
+    // connect(startGroupButton, SIGNAL(clicked()), wpa,
+    //         SLOT(startGroup()));
+    // connect(refreshButton, SIGNAL(clicked()), wpa,
+    //         SLOT(scan()));
+    // connect(channelSlider, SIGNAL(sliderReleased()), this,
+    //         SLOT(channelReleased()));
 }
 
 MainWindow::~MainWindow()
 {
-    wpa->stop();
-    wpa->wait(2500000); // 2.5s
-
+    delete wpa;
     delete buttonGroup;
     delete devicesModel;
     delete deviceDelegate;
-    delete wpa;
-}
+ }
 
 void MainWindow::acceptConnectClicked()
 {
     bool go = (goCheckBox->checkState() == Qt::Checked) ? true : false;
 
-    if (buttonGroup->checkedButton() == pbcRadioButton)
-        wpa->connectPBC(selectedDevice, go, intentSlider->value());
-    else
-        wpa->connectPIN(selectedDevice, pinLineEdit->text(), go);
+    // if (buttonGroup->checkedButton() == pbcRadioButton)
+    //     wpa->connectPBC(selectedDevice, go, intentSlider->value());
+    // else
+    //     wpa->connectPIN(selectedDevice, pinLineEdit->text(), go);
 
     stackedWidget->setCurrentWidget(mainPage);
 }
@@ -108,13 +98,13 @@ void MainWindow::channelReleased(){
     int value = channelSlider->value();
     if (value < 4) {
         channelSlider->setValue(1);
-        wpa->setChannel(1);
+        // wpa->setChannel(1);
     } else if (value < 9) {
         channelSlider->setValue(6);
-        wpa->setChannel(6);
+        // wpa->setChannel(6);
     } else {
         channelSlider->setValue(11);
-        wpa->setChannel(11);
+        // wpa->setChannel(11);
     }
 }
 
@@ -130,14 +120,14 @@ void MainWindow::deviceSelected(const QModelIndex &index)
 
 void MainWindow::enableStateChanged(int state)
 {
-    if (state == Qt::Checked) {
-        wpa->setEnabled(true);
-    } else {
-        wpa->setEnabled(false);
-        DevicesListModel *model =
-            qobject_cast<DevicesListModel *>(listView->model());
-        model->removeRows(0, model->rowCount());
-    }
+    // if (state == Qt::Checked) {
+    //     wpa->setEnabled(true);
+    // } else {
+    //     wpa->setEnabled(false);
+    //     DevicesListModel *model =
+    //         qobject_cast<DevicesListModel *>(listView->model());
+    //     model->removeRows(0, model->rowCount());
+    // }
 }
 
 void MainWindow::exitClicked()
@@ -172,7 +162,7 @@ void MainWindow::groupStopped()
 void MainWindow::setName()
 {
     QString name = nameLineEdit->text();
-    wpa->setName(name);
+    // wpa->setName(name);
 }
 
 void MainWindow::settingsClicked()
