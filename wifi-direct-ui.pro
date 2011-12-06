@@ -1,7 +1,7 @@
 TEMPLATE = app
 
 RESOURCES = wifi-direct-ui.qrc
-QT += gui
+QT += gui dbus
 DEPENDPATH += . src
 INCLUDEPATH += . src
 
@@ -35,14 +35,26 @@ FORMS += ui/mainwindow.ui
 HEADERS += src/device.h             \
 	   src/devicelistdelegate.h \
 	   src/deviceslistmodel.h   \
+           src/interface.h          \
+           src/interfaces.h         \
            src/mainwindow.h         \
-           src/wpap2p.h             \
-           src/keyboard.h
+           src/keyboard.h           \
+           src/p2pdevice.h          \
+           src/peer.h               \
+           src/types.h              \
+           src/wpa.h                \
+           src/wps.h
+
 
 SOURCES += src/device.cpp             \
 	   src/devicelistdelegate.cpp \
 	   src/deviceslistmodel.cpp   \
+           src/interface.cpp          \
+           src/interfaces.cpp         \
            src/main.cpp               \
            src/mainwindow.cpp         \
-           src/wpap2p.cpp             \
-           src/keyboard.cpp
+           src/keyboard.cpp           \
+           src/p2pdevice.cpp          \
+           src/peer.cpp               \
+           src/wpa.cpp                \
+           src/wps.cpp
