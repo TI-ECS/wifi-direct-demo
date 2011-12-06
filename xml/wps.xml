@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+    <interface name="fi.w1.wpa_supplicant1.Interface.WPS">
+        <method name="Start">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+            <arg name="output" type="a{sv}" direction="out"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+        </method>
+        <signal name="Event">
+            <arg name="name" type="s"/>
+            <arg name="args" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In1" value="QVariantMap"/>
+        </signal>
+        <signal name="Credentials">
+            <arg name="credentials" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </signal>
+        <signal name="PropertiesChanged">
+            <arg name="properties" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </signal>
+        <property name="ProcessCredentials" type="b" access="readwrite"/>
+    </interface>
+    <node name="WPS"/>
+</node>

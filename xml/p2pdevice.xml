@@ -1,0 +1,145 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+    <interface name="fi.w1.wpa_supplicant1.Interface.P2PDevice">
+        <method name="Find">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="StopFind"/>
+        <method name="Listen">
+            <arg name="timeout" type="i" direction="in"/>
+        </method>
+        <method name="ExtendedListen">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="PresenceRequest">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="ProvisionDiscoveryRequest">
+            <arg name="peer" type="o" direction="in"/>
+            <arg name="config_method" type="s" direction="in"/>
+        </method>
+        <method name="Connect">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+            <arg name="generated_pin" type="i" direction="out"/>
+        </method>
+        <method name="GroupAdd">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="Invite">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="Disconnect"/>
+        <method name="RejectPeer">
+            <arg name="peer" type="o" direction="in"/>
+        </method>
+        <method name="Flush"/>
+        <method name="AddService">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="DeleteService">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="FlushService"/>
+        <method name="ServiceDiscoveryRequest">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="ServiceDiscoveryResponse">
+            <arg name="args" type="a{sv}" direction="in"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </method>
+        <method name="ServiceDiscoveryCancelRequest">
+            <arg name="args" type="t" direction="in"/>
+        </method>
+        <method name="ServiceUpdate"/>
+        <method name="ServiceDiscoveryExternal">
+            <arg name="arg" type="i" direction="in"/>
+        </method>
+        <method name="ServiceDiscoveryExternal">
+            <arg name="arg" type="i" direction="in"/>
+        </method>
+        <signal name="P2PStateChanged">
+            <arg name="states" type="a{ss}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QStringMap"/>
+        </signal>
+        <signal name="DeviceFound">
+            <arg name="path" type="o"/>
+            <arg name="properties" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In1" value="QVariantMap"/>
+        </signal>
+        <signal name="DeviceLost">
+            <arg name="path" type="o"/>
+        </signal>
+        <signal name="ProvisionDiscoveryRequestDisplayPin">
+            <arg name="peer_object" type="o"/>
+            <arg name="pin" type="s"/>
+        </signal>
+        <signal name="ProvisionDiscoveryResponseDisplayPin">
+            <arg name="peer_object" type="o"/>
+            <arg name="pin" type="s"/>
+        </signal>
+        <signal name="ProvisionDiscoveryRequestEnterPin">
+            <arg name="peer_object" type="o"/>
+        </signal>
+        <signal name="ProvisionDiscoveryResponseEnterPin">
+            <arg name="peer_object" type="o"/>
+        </signal>
+        <signal name="ProvisionDiscoveryPBCRequest">
+            <arg name="peer_object" type="o"/>
+        </signal>
+        <signal name="ProvisionDiscoveryPBCResponse">
+            <arg name="peer_object" type="o"/>
+        </signal>
+        <signal name="ProvisionDiscoveryFailure">
+            <arg name="peer_object" type="o"/>
+            <arg name="status" type="i"/>
+        </signal>
+        <signal name="GroupStarted">
+            <arg name="properties" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </signal>
+        <signal name="GONegotiationSuccess"/>
+        <signal name="GONegotiationFailure">
+            <arg name="status" type="i"/>
+        </signal>
+        <signal name="GONegotiationRequest">
+            <arg name="path" type="o"/>
+            <arg name="dev_passwd_id" type="i"/>
+        </signal>
+        <signal name="InvitationResult">
+            <arg name="invite_result" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </signal>
+        <signal name="GroupFinished">
+            <arg name="ifname" type="s"/>
+            <arg name="role" type="s"/>
+        </signal>
+        <signal name="ServiceDiscoveryRequest">
+            <arg name="sd_request" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </signal>
+        <signal name="ServiceDiscoveryResponse">
+            <arg name="sd_response" type="a{sv}"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
+        </signal>
+        <property name="P2PDeviceProperties" type="a{sv}" access="readwrite">
+            <annotation name="com.trolltech.QtDBus.QtTypeName" value="QVariantMap"/>
+        </property>
+        <property name="Peers" type="ao" access="read"/>
+        <property name="Role" type="s" access="read"/>
+        <property name="Group" type="o" access="read"/>
+        <property name="PeerGO" type="o" access="read"/>
+    </interface>
+    <node name="P2PDevice"/>
+</node>
+
+
