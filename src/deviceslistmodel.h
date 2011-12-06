@@ -20,13 +20,13 @@ public:
     virtual int rowCount(const QModelIndex &index = QModelIndex()) const;
 
 public slots:
-    void setDevicesList(const QList<QSharedPointer<Device> > &devices);
+    void addDevice(const Device &device);
 
 private slots:
     void deviceItemChanged(Device *item);
 
 private:
-    QList<QSharedPointer<Device> > devices;
+    QList<Device *> devices;
 };
 
 #endif /* _DEVICESLISTMODEL_H_ */

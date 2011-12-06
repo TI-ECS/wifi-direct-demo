@@ -11,6 +11,10 @@ DevicesListModel::DevicesListModel(QObject *parent)
 
 DevicesListModel::~DevicesListModel()
 {
+    foreach (Device *d, devices)
+        delete d;
+
+    devices.clear();
 }
 
 int DevicesListModel::rowCount(const QModelIndex &) const
@@ -30,29 +34,32 @@ QVariant DevicesListModel::data(const QModelIndex &index,
         return QVariant();
 
     if (role == Qt::DisplayRole) {
-        Device *it =  devices.at(index.row()).data();
+        Device *it =  devices.at(index.row());
         if (it->name().isEmpty())
             return QVariant(it->address());
         else
             return QVariant(it->name());
     } else if (role == Qt::UserRole) {
-        return qVariantFromValue<Device*>(devices.at(index.row()).data());
+        return qVariantFromValue<Device*>(devices.at(index.row()));
     } else if (role == Qt::UserRole + 1) {
-        return QVariant(devices.at(index.row()).data()->address());
+        return QVariant(devices.at(index.row())->address());
     } else if (role == Qt::UserRole + 2) {
-        return QVariant(devices.at(index.row()).data()->name());
+        return QVariant(devices.at(index.row())->name());
     } else
         return QVariant();
 }
 
-void DevicesListModel::setDevicesList(const QList<QSharedPointer<Device> > &devices)
+void DevicesListModel::addDevice(const Device &device)
 {
-    this->devices = devices;
-    foreach (QSharedPointer<Device> item, devices)
-        connect(item.data(), SIGNAL(valueChanged(Device *)), this,
-                SLOT(deviceItemChanged(Device *)));
-    emit dataChanged(this->createIndex(0, 0),
-                     this->createIndex(devices.count(), 0));
+    int pos = devices.count();
+    Device *d = new Device(device);
+
+    devices.append(d);
+    connect(d, SIGNAL(valueChanged(Device *)), this,
+            SLOT(deviceItemChanged(Device *)));
+
+    emit dataChanged(this->createIndex(pos, 0),
+                     this->createIndex(pos + 1, 0));
 }
 
 QVariant DevicesListModel::headerData(int, Qt::Orientation, int) const
@@ -63,8 +70,8 @@ QVariant DevicesListModel::headerData(int, Qt::Orientation, int) const
 void DevicesListModel::deviceItemChanged(Device *item)
 {
     int i = 0;
-    foreach (QSharedPointer<Device> it, devices) {
-        if (it.data() == item) {
+    foreach (Device* it, devices) {
+        if (it == item) {
             emit dataChanged(this->createIndex(i, 0),
                              this->createIndex(i, 0));
             return;
