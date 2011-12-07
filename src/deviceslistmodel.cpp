@@ -49,8 +49,12 @@ QVariant DevicesListModel::data(const QModelIndex &index,
         return QVariant();
 }
 
-void DevicesListModel::addDevice(const Device &device)
+void DevicesListModel::addDevice(Device &device)
 {
+    foreach(Device *dev, devices)
+        if (dev->address() == device.address())
+            return;
+
     int pos = devices.count();
     Device *d = new Device(device);
 

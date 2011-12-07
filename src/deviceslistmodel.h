@@ -20,7 +20,7 @@ public:
     virtual int rowCount(const QModelIndex &index = QModelIndex()) const;
 
 public slots:
-    void addDevice(const Device &device);
+    void addDevice(Device &device);
 
 private slots:
     void deviceItemChanged(Device *item);
