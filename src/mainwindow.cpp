@@ -44,20 +44,20 @@ MainWindow::MainWindow(QWidget *parent)
     connect(wpa, SIGNAL(deviceFound(const Device &)),
             devicesModel,
             SLOT(addDevice(const Device&)));
-    connect(wpa, SIGNAL(groupHasStarted()), this,
+    connect(wpa, SIGNAL(groupStarted()), this,
             SLOT(groupStarted()));
-    // connect(wpa, SIGNAL(groupStopped()), this,
-    //         SLOT(groupStopped()));
+    connect(wpa, SIGNAL(groupFinished()), this,
+            SLOT(groupStopped()));
     // connect(wpa, SIGNAL(pinCode(const QString&)), this,
     //         SLOT(showPinCode(const QString&)));
     // connect(wpa, SIGNAL(enabled(bool)), this,
     //         SLOT(setWifiDirectEnabled(bool)));
     // connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
     //         SLOT(setIntent(int)));
-    // connect(listView, SIGNAL(doubleClicked(const QModelIndex&)), this,
-    //         SLOT(deviceSelected(const QModelIndex&)));
-    // connect(startGroupButton, SIGNAL(clicked()), wpa,
-    //         SLOT(startGroup()));
+    connect(listView, SIGNAL(doubleClicked(const QModelIndex&)), this,
+            SLOT(deviceSelected(const QModelIndex&)));
+    connect(startGroupButton, SIGNAL(clicked()), this,
+            SLOT(startGroupClicked()));
     // connect(refreshButton, SIGNAL(clicked()), wpa,
     //         SLOT(scan()));
     // connect(channelSlider, SIGNAL(sliderReleased()), this,
@@ -185,4 +185,13 @@ void MainWindow::setWifiDirectEnabled(bool state)
 void MainWindow::showPinCode(const QString &pin)
 {
     QMessageBox::information(this, "PIN CODE", pin);
+}
+
+void MainWindow::startGroupClicked()
+{
+    if (startGroupButton->text() == "Start Group") {
+        wpa->startGroup();
+    } else {
+        // TODO: Remove group
+    }
 }

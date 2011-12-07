@@ -14,15 +14,25 @@ public:
     Wpa(QObject *parent = 0);
     virtual ~Wpa();
 
+public slots:
+    void startGroup();
+    void stopGroup();
+    void disconnect();
+
 private slots:
     void deviceWasFound(const QDBusObjectPath&, const QVariantMap&);
+    void disconnectResult(QDBusPendingCallWatcher *watcher);
     void findResult(QDBusPendingCallWatcher *watcher);
-    void groupStarted(const QVariantMap&);
+    void groupHasStarted(const QVariantMap &properties);
+    void groupHasFinished(const QString &ifname, const QString &role);
+    void stateChanged(const QStringMap &states);
 
 signals:
     void deviceFound(const Device &device);
+    void disconnected();
     void status(const QString &status);
-    void groupHasStarted();
+    void groupStarted();
+    void groupFinished();
 
 private:
     fi::w1::wpa_supplicant::Interface::P2PDevice *p2pInterface;

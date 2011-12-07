@@ -26,6 +26,7 @@ private slots:
     void groupStarted();
     void groupStopped();
     void setWifiDirectEnabled(bool state);
+    void startGroupClicked();
 
 public slots:
     void acceptConnectClicked();
