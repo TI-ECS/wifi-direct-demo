@@ -1,6 +1,7 @@
 #ifndef _WPA_H_
 #define _WPA_H_
 
+#include "device.h"
 #include "p2pdevice.h"
 
 #include <QObject>
@@ -14,11 +15,12 @@ public:
     virtual ~Wpa();
 
 private slots:
-    void deviceFound(const QDBusObjectPath&, const QVariantMap&);
+    void deviceWasFound(const QDBusObjectPath&, const QVariantMap&);
     void findResult(QDBusPendingCallWatcher *watcher);
     void groupStarted(const QVariantMap&);
 
 signals:
+    void deviceFound(const Device &device);
     void status(const QString &status);
     void groupHasStarted();
 

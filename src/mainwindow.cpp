@@ -41,9 +41,9 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(focusChanged(QWidget*, QWidget*)));
     connect(wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
             SLOT(setText(const QString&)));
-    // connect(wpa, SIGNAL(devicesFounded(const QList<QSharedPointer<Device> >&)),
-    //         devicesModel,
-    //         SLOT(setDevicesList(const QList<QSharedPointer<Device> >&)));
+    connect(wpa, SIGNAL(deviceFound(const Device &)),
+            devicesModel,
+            SLOT(addDevice(const Device&)));
     connect(wpa, SIGNAL(groupHasStarted()), this,
             SLOT(groupStarted()));
     // connect(wpa, SIGNAL(groupStopped()), this,

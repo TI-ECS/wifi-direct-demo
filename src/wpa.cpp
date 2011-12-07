@@ -1,6 +1,5 @@
 #include "wpa.h"
 
-#include "device.h"
 #include "interfaces.h"
 #include "peer.h"
 
@@ -31,7 +30,7 @@ Wpa::Wpa(QObject *parent)
                               QDBusConnection::systemBus());
 
     connect(p2pInterface, SIGNAL(DeviceFound(const QDBusObjectPath&, const QVariantMap&)),
-            this, SLOT(deviceFound(const QDBusObjectPath&, const QVariantMap&)));
+            this, SLOT(deviceWasFound(const QDBusObjectPath&, const QVariantMap&)));
     connect(p2pInterface, SIGNAL(GroupStarted(const QVariantMap&)),
             this, SLOT(groupStarted(const QVariantMap&)));
 
@@ -45,8 +44,8 @@ Wpa::~Wpa()
     delete p2pInterface;
 }
 
-void Wpa::deviceFound(const QDBusObjectPath &path,
-                      const QVariantMap &properties)
+void Wpa::deviceWasFound(const QDBusObjectPath &path,
+                         const QVariantMap &properties)
 {
     qDebug() << "path: " << path.path();
 }
@@ -73,9 +72,13 @@ void Wpa::getPeers()
     QList<QDBusObjectPath> peers = p2pInterface->peers();
     foreach(QDBusObjectPath path, peers) {
         Peer p(wpa_service, path.path(), QDBusConnection::systemBus());
-        foreach(QString key, p.properties().keys())
-            qDebug() << "key: " << key;
-        qDebug() << "peer: " << path.path();
+        QVariantMap properties = p.properties();
+        QByteArray addr = path.path().split("/").last().toAscii();
+        for (int i = 2; i < addr.size(); i+=3)
+            addr.insert(i, ':');
+        QString deviceName = properties.value("DeviceName").toString();
+        Device dev(addr, deviceName);
+        emit deviceFound(dev);
     }
 }
 
