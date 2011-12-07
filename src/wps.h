@@ -58,7 +58,7 @@ Q_SIGNALS: // SIGNALS
 
 namespace fi {
   namespace w1 {
-    namespace wpa_supplicant1 {
+    namespace wpa_supplicant {
       namespace Interface {
         typedef ::FiW1Wpa_supplicant1InterfaceWPSInterface WPS;
       }
