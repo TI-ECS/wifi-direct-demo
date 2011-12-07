@@ -645,6 +645,13 @@ QSpinBox::down-arrow:off { /* off state when value in min */
             <number>19</number>
            </property>
            <item>
+            <widget class="QRadioButton" name="joinGroupRadioButton">
+             <property name="text">
+              <string>Join to group</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QRadioButton" name="pbcRadioButton">
              <property name="text">
               <string>PBC</string>
@@ -744,8 +751,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>backClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>428</y>
+     <x>84</x>
+     <y>34</y>
     </hint>
     <hint type="destinationlabel">
      <x>15</x>
@@ -792,12 +799,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>696</x>
-     <y>207</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>784</x>
-     <y>218</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
    </hints>
   </connection>
@@ -808,12 +815,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>570</x>
-     <y>99</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>773</x>
-     <y>124</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
    </hints>
   </connection>
@@ -824,12 +831,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>771</x>
-     <y>111</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>696</x>
-     <y>122</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
    </hints>
   </connection>
@@ -840,12 +847,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>784</x>
-     <y>218</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>696</x>
-     <y>207</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
    </hints>
   </connection>
@@ -904,12 +911,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>31</x>
-     <y>85</y>
+     <x>45</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
-     <x>497</x>
-     <y>91</y>
+     <x>632</x>
+     <y>160</y>
     </hint>
    </hints>
   </connection>
@@ -920,8 +927,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setName()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>746</x>
-     <y>36</y>
+     <x>104</x>
+     <y>34</y>
     </hint>
     <hint type="destinationlabel">
      <x>800</x>
@@ -936,12 +943,44 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>27</x>
-     <y>135</y>
+     <x>40</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
-     <x>520</x>
-     <y>87</y>
+     <x>655</x>
+     <y>160</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinGroupRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pinLineEdit</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>28</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>260</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinGroupRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>goCheckBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>80</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>111</x>
+     <y>200</y>
     </hint>
    </hints>
   </connection>
