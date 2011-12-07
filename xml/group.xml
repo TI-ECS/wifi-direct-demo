@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+    <interface name="fi.w1.wpa_supplicant1.Group">
+        <signal name="PeerJoined">
+            <arg name="peer" type="o"/>
+        </signal>
+        <signal name="PeerDisconnected">
+            <arg name="peer" type="o"/>
+        </signal>
+        <property name="Members" type="ao" access="read"/>
+        <property name="Properties" type="a{sv}" access="readwrite">
+            <annotation name="com.trolltech.QtDBus.QtTypeName" value="QVariantMap"/>
+        </property>
+    </interface>
+</node>
+
+

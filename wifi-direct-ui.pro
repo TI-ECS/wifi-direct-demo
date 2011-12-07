@@ -39,6 +39,7 @@ FORMS += ui/mainwindow.ui
 HEADERS += src/device.h             \
 	   src/devicelistdelegate.h \
 	   src/deviceslistmodel.h   \
+           src/group.h              \
            src/interface.h          \
            src/interfaces.h         \
            src/mainwindow.h         \
@@ -53,6 +54,7 @@ HEADERS += src/device.h             \
 SOURCES += src/device.cpp             \
 	   src/devicelistdelegate.cpp \
 	   src/deviceslistmodel.cpp   \
+           src/group.cpp              \
            src/interface.cpp          \
            src/interfaces.cpp         \
            src/main.cpp               \
