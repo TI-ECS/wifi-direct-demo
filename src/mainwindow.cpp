@@ -48,16 +48,16 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(groupStarted()));
     connect(wpa, SIGNAL(groupFinished()), this,
             SLOT(groupStopped()));
-    // connect(wpa, SIGNAL(pinCode(const QString&)), this,
-    //         SLOT(showPinCode(const QString&)));
-    // connect(wpa, SIGNAL(enabled(bool)), this,
-    //         SLOT(setWifiDirectEnabled(bool)));
-    // connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
-    //         SLOT(setIntent(int)));
+    connect(wpa, SIGNAL(enabled(bool)), this,
+            SLOT(setWifiDirectEnabled(bool)));
     connect(listView, SIGNAL(doubleClicked(const QModelIndex&)), this,
             SLOT(deviceSelected(const QModelIndex&)));
     connect(startGroupButton, SIGNAL(clicked()), this,
             SLOT(startGroupClicked()));
+    // connect(wpa, SIGNAL(pinCode(const QString&)), this,
+    //         SLOT(showPinCode(const QString&)));
+    // connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
+    //         SLOT(setIntent(int)));
     // connect(refreshButton, SIGNAL(clicked()), wpa,
     //         SLOT(scan()));
     // connect(channelSlider, SIGNAL(sliderReleased()), this,
@@ -131,14 +131,14 @@ void MainWindow::deviceSelected(const QModelIndex &index)
 
 void MainWindow::enableStateChanged(int state)
 {
-    // if (state == Qt::Checked) {
-    //     wpa->setEnabled(true);
-    // } else {
-    //     wpa->setEnabled(false);
-    //     DevicesListModel *model =
-    //         qobject_cast<DevicesListModel *>(listView->model());
-    //     model->removeRows(0, model->rowCount());
-    // }
+    if (state == Qt::Checked) {
+        wpa->setEnabled(true);
+    } else {
+        wpa->setEnabled(false);
+        DevicesListModel *model =
+            qobject_cast<DevicesListModel *>(listView->model());
+        model->removeRows(0, model->rowCount());
+    }
 }
 
 void MainWindow::exitClicked()

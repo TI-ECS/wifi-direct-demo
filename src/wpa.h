@@ -15,6 +15,8 @@ public:
     virtual ~Wpa();
 
 public slots:
+    bool isEnabled();
+    void setEnabled(bool enable);
     void startGroup();
     void stopGroup();
     void disconnect();
@@ -30,15 +32,17 @@ private slots:
 signals:
     void deviceFound(const Device &device);
     void disconnected();
+    void enabled(bool enable);
     void status(const QString &status);
     void groupStarted();
     void groupFinished();
 
 private:
+    Q_PID wpaPid;;
     fi::w1::wpa_supplicant::Interface::P2PDevice *p2pInterface;
 
     void find();
-    void getPeers();
+    void setupDBus();
 };
 
 #endif /* _WPA_H_ */
