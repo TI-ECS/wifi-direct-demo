@@ -176,10 +176,6 @@ void Wpa::groupHasStarted(const QVariantMap &properties)
         delete group;
     }
 
-    QStringList args;
-    args << "wps_pbc";
-    QProcess::execute("/usr/sbin/wpa_cli", args);
-
     group = new Group(wpa_service, properties.value("network_object").
                       value<QDBusObjectPath>().path(),
                       QDBusConnection::systemBus());
@@ -269,6 +265,12 @@ void Wpa::setupDBus()
             SLOT(goNegotiationFailure(int)));
     connect(p2pInterface, SIGNAL(GONegotiationRequest(const QDBusObjectPath&,int)),
             this, SLOT(goNegotiationRequest(const QDBusObjectPath&, int)));
+    connect(p2pInterface, SIGNAL(ProvisionDiscoveryPBCRequest(const QDBusObjectPath&)),
+            this, SLOT(provisionDiscoveryPBCRequest(const QDBusObjectPath&)));
+
+    wps = new WPS(wpa_service, interfacePath,
+               QDBusConnection::systemBus());
+    wps->setProcessCredentials(true);
 
     find();
 }
@@ -324,4 +326,28 @@ void Wpa::setDeviceName(const QString &deviceName)
    args["DeviceName"] = deviceName;
 
    p2pInterface->setP2PDeviceProperties(args);
+}
+
+void Wpa::provisionDiscoveryPBCRequest(const QDBusObjectPath &peer_object)
+{
+    QVariantMap args;
+    args["Role"] = wps_role;
+    args["Type"] = "pbc";
+    QDBusPendingCallWatcher *watcher;
+    watcher = new QDBusPendingCallWatcher(
+        wps->Start(args), this);
+    connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+            this, SLOT(wpsResult(QDBusPendingCallWatcher*)));
+}
+
+void Wpa::wpsResult(QDBusPendingCallWatcher *watcher)
+{
+    watcher->deleteLater();
+    QDBusPendingReply<QVariantMap> reply = *watcher;
+    if (!reply.isValid()) {
+        qDebug() << "WPS fails: " << reply.error().name();
+        qDebug() << reply.error().message();
+        return;
+    } else {
+    }
 }

@@ -4,6 +4,7 @@
 #include "device.h"
 #include "interface.h"
 #include "group.h"
+#include "wps.h"
 #include "p2pdevice.h"
 
 #include <QObject>
@@ -40,6 +41,8 @@ private slots:
     void groupStartResult(QDBusPendingCallWatcher *watcher);
     void peerJoined(const QDBusObjectPath &peer);
     void stateChanged(const QStringMap &states);
+    void provisionDiscoveryPBCRequest(const QDBusObjectPath &peer_object);
+    void wpsResult(QDBusPendingCallWatcher *watcher);
 
 signals:
     void connectFails(int);
@@ -56,6 +59,7 @@ private:
     QString interfacePath;
     fi::w1::wpa_supplicant::Group *group;
     fi::w1::wpa_supplicant::InterfaceDevice *device;
+    fi::w1::wpa_supplicant::Interface::WPS *wps;
     fi::w1::wpa_supplicant::Interface::P2PDevice *p2pInterface;
 
     void find();
