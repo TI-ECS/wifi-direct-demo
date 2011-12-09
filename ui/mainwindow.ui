@@ -324,9 +324,9 @@ QSpinBox::down-arrow:off { /* off state when value in min */
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="refreshButton">
+              <widget class="QPushButton" name="disconnectButton">
                <property name="text">
-                <string>Refresh</string>
+                <string>Disconnect</string>
                </property>
               </widget>
              </item>
@@ -736,7 +736,7 @@ QSpinBox::down-arrow:off { /* off state when value in min */
   <tabstop>pinLineEdit</tabstop>
   <tabstop>pbcRadioButton</tabstop>
   <tabstop>startGroupButton</tabstop>
-  <tabstop>refreshButton</tabstop>
+  <tabstop>disconnectButton</tabstop>
   <tabstop>intentSlider</tabstop>
   <tabstop>exitButton</tabstop>
  </tabstops>

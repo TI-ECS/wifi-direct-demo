@@ -22,16 +22,19 @@ public:
 
 private slots:
     void channelReleased();
+    void connectionFails(int status);
     void focusChanged(QWidget *old, QWidget *now);
-    void groupStarted();
+    void groupStarted(bool go);
     void groupStopped();
     void setWifiDirectEnabled(bool state);
     void startGroupClicked();
+    void statusChanged(const QString &state);
 
 public slots:
     void acceptConnectClicked();
     void backClicked();
     void cancelConnectClicked();
+    void disconnectClicked();
     void enableStateChanged(int state);
     void exitClicked();
     void setName();

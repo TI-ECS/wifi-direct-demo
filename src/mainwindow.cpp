@@ -35,17 +35,21 @@ MainWindow::MainWindow(QWidget *parent)
     buttonGroup->addButton(pbcRadioButton);
     buttonGroup->addButton(joinGroupRadioButton);
     buttonGroup->addButton(pinRadioButton);
+    disconnectButton->setEnabled(false);
 
     wpa = new Wpa;
+
     dynamic_cast<QVBoxLayout *>(layout())->setStretchFactor(scrollArea, 1);
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)), this,
             SLOT(focusChanged(QWidget*, QWidget*)));
-    connect(wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
-            SLOT(setText(const QString&)));
+    connect(wpa, SIGNAL(status(const QString&)), this,
+            SLOT(statusChanged(const QString&)));
     connect(wpa, SIGNAL(deviceFound(Device&)), devicesModel,
             SLOT(addDevice(Device&)));
-    connect(wpa, SIGNAL(groupStarted()), this,
-            SLOT(groupStarted()));
+    connect(wpa, SIGNAL(connectFails(int)), this,
+            SLOT(connectionFails(int)));
+    connect(wpa, SIGNAL(groupStarted(bool)), this,
+            SLOT(groupStarted(bool)));
     connect(wpa, SIGNAL(groupFinished()), this,
             SLOT(groupStopped()));
     connect(wpa, SIGNAL(enabled(bool)), this,
@@ -54,15 +58,21 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(deviceSelected(const QModelIndex&)));
     connect(startGroupButton, SIGNAL(clicked()), this,
             SLOT(startGroupClicked()));
+    connect(disconnectButton, SIGNAL(clicked()), this,
+            SLOT(disconnectClicked()));
     // connect(wpa, SIGNAL(pinCode(const QString&)), this,
     //         SLOT(showPinCode(const QString&)));
     // connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
     //         SLOT(setIntent(int)));
-    // connect(refreshButton, SIGNAL(clicked()), wpa,
-    //         SLOT(scan()));
     // connect(channelSlider, SIGNAL(sliderReleased()), this,
     //         SLOT(channelReleased()));
-    wpa->getPeers();
+
+    if (wpa->isEnabled()) {
+        wifiDirectCheckBox->setCheckState(Qt::Checked);
+        wpa->getPeers();
+
+        statusChanged(wpa->getStatus());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -105,7 +115,8 @@ void MainWindow::cancelConnectClicked()
     stackedWidget->setCurrentWidget(mainPage);
 }
 
-void MainWindow::channelReleased(){
+void MainWindow::channelReleased()
+{
     int value = channelSlider->value();
     if (value < 4) {
         channelSlider->setValue(1);
@@ -117,6 +128,13 @@ void MainWindow::channelReleased(){
         channelSlider->setValue(11);
         // wpa->setChannel(11);
     }
+}
+
+void MainWindow::connectionFails(int status)
+{
+    QMessageBox::warning(this, "Failed",
+                         QString("Connection failed with status: %1").
+                         arg(status));
 }
 
 void MainWindow::deviceSelected(const QModelIndex &index)
@@ -141,6 +159,12 @@ void MainWindow::enableStateChanged(int state)
     }
 }
 
+void MainWindow::disconnectClicked()
+{
+    QProcess::startDetached("/usr/bin/wifi_exit.sh");
+    wpa->disconnectP2P();
+}
+
 void MainWindow::exitClicked()
 {
     close();
@@ -160,25 +184,30 @@ void MainWindow::focusChanged(QWidget *old, QWidget *now)
         keyboard->setVisible(false);
 }
 
-void MainWindow::groupStarted()
+void MainWindow::groupStarted(bool go)
 {
-    startGroupButton->setText("Stop Group");
-
-    // As we're the GO, init udhcpd
-    QStringList args;
-    args << "server";
-    QProcess::startDetached("/usr/bin/wifi_init.sh", args);
+    disconnectButton->setEnabled(true);
+    if (go) { // group owner
+        startGroupButton->setText("Stop Group");
+        // As we're the GO, init udhcpd
+        QStringList args;
+        args << "server";
+        QProcess::startDetached("/usr/bin/wifi_init.sh", args);
+    } else { // client
+        QProcess::startDetached("/usr/bin/wifi_init.sh");
+    }
 }
 
 void MainWindow::groupStopped()
 {
+    QProcess::startDetached("/usr/bin/wifi_exit.sh");
     startGroupButton->setText("Start Group");
 }
 
 void MainWindow::setName()
 {
     QString name = nameLineEdit->text();
-    // wpa->setName(name);
+    wpa->setDeviceName(name);
 }
 
 void MainWindow::settingsClicked()
@@ -192,7 +221,7 @@ void MainWindow::setWifiDirectEnabled(bool state)
     if (state) {
         wifiDirectCheckBox->setCheckState(Qt::Checked);
     } else {
-        wifiDirectCheckBox->setCheckState(Qt::Unchecked);
+         wifiDirectCheckBox->setCheckState(Qt::Unchecked);
         wifiDirectStatusLabel->setText("Disabled");
         startGroupButton->setText("Start Group");
     }
@@ -208,6 +237,20 @@ void MainWindow::startGroupClicked()
     if (startGroupButton->text() == "Start Group") {
         wpa->startGroup();
     } else {
-        // TODO: Remove group
+        wpa->stopGroup();
     }
+}
+
+void MainWindow::statusChanged(const QString &state)
+{
+    if (state == "completed") {
+        startGroupButton->setText("Stop Group");
+        disconnectButton->setEnabled(true);
+    } else if (state.isEmpty() || (state == "inactive")
+               || (state == "scanning")) {
+        startGroupButton->setText("Start Group");
+        disconnectButton->setEnabled(false);
+    }
+
+    wifiDirectStatusLabel->setText(state);
 }

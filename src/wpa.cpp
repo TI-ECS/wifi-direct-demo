@@ -1,5 +1,6 @@
 #include "wpa.h"
 
+#include "interface.h"
 #include "interfaces.h"
 #include "peer.h"
 
@@ -7,12 +8,15 @@
 #include <signal.h>
 #include <sys/types.h>
 
+#define DEFAULT_FREQUENCY 2415     // 2.4GHZ
+
 using namespace fi::w1;
 using namespace fi::w1::wpa_supplicant;
 using namespace fi::w1::wpa_supplicant::Interface;
 
 static const QString wpa_process_name = "wpa_supplicant";
 static const QString wpa_service = "fi.w1.wpa_supplicant1";
+static const QString wps_role = "enrollee";
 
 Q_PID proc_find(const QString &name)
 {
@@ -49,28 +53,72 @@ Wpa::Wpa(QObject *parent)
 {
     group = NULL;
     wpaPid = proc_find(wpa_process_name);
-
     if (wpaPid != -1) {
-	enabled(true);
-	setupDBus();
+        enabled(true);
+        setupDBus();
     } else {
-	enabled(false);
+        enabled(false);
     }
 }
 
 
 Wpa::~Wpa()
 {
+    delete device;
     delete p2pInterface;
 }
 
-void Wpa::deviceWasFound(const QDBusObjectPath &path,
-                         const QVariantMap &properties)
+void Wpa::connectPeer(const QVariantMap &properties)
 {
-    qDebug() << "path: " << path.path();
+    QString addr = properties.value("address").toString();
+    QString method = properties.value("method").toString();
+    QString pin = properties.value("pincode").toString();
+    bool join = properties.value("join").toBool();
+    int go_intent = properties.value("go_intent").toInt();
+    QString p = QString("%1/Peers/%2").arg(interfacePath).
+        arg(addr.remove(":"));
+
+    QDBusObjectPath peer(p);
+    QVariantMap args;
+    args["peer"] = qVariantFromValue(peer);
+    args["persistent"] = false;
+    // args["frequency"] = DEFAULT_FREQUENCY;
+    args["join"] = join;
+    args["wps_method"] = method;
+    args["go_intent"] = go_intent;
+    args["pin"] = pin;
+
+    QDBusPendingCallWatcher *watcher;
+    watcher = new QDBusPendingCallWatcher(p2pInterface->Connect(args), this);
+    connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+            this, SLOT(connectResult(QDBusPendingCallWatcher*)));
 }
 
-void Wpa::disconnect()
+void Wpa::connectResult(QDBusPendingCallWatcher *watcher)
+{
+    watcher->deleteLater();
+    QDBusPendingReply<int> reply = *watcher;
+    if (!reply.isValid()) {
+        qDebug() << "Connect Fails: " << reply.error().name();
+        qDebug() << reply.error().message();
+    } else {
+        qDebug() << "connect value: " << reply.value();
+    }
+}
+
+void Wpa::deviceWasFound(const QDBusObjectPath &path)
+{
+    Peer p(wpa_service, path.path(), QDBusConnection::systemBus());
+    QVariantMap properties = p.properties();
+    QByteArray addr = path.path().split("/").last().toAscii();
+    for (int i = 2; i < addr.size(); i+=3)
+        addr.insert(i, ':');
+    QString deviceName = properties.value("DeviceName").toString();
+    Device dev(addr, deviceName);
+    emit deviceFound(dev);
+}
+
+void Wpa::disconnectP2P()
 {
     QDBusPendingCallWatcher *watcher;
     watcher = new QDBusPendingCallWatcher(p2pInterface->Disconnect(), this);
@@ -123,7 +171,23 @@ void Wpa::getPeers()
 
 void Wpa::groupHasStarted(const QVariantMap &properties)
 {
-    emit groupStarted();
+    if (group) {
+        group->disconnect();
+        delete group;
+    }
+
+    QStringList args;
+    args << "wps_pbc";
+    QProcess::execute("/usr/sbin/wpa_cli", args);
+
+    group = new Group(wpa_service, properties.value("network_object").
+                      value<QDBusObjectPath>().path(),
+                      QDBusConnection::systemBus());
+    connect(group, SIGNAL(PeerJoined(const QDBusObjectPath&)), this,
+            SLOT(peerJoined(const QDBusObjectPath&)));
+
+    bool go = properties.value("role").toString() == "GO";
+    emit groupStarted(go);
 }
 
 void Wpa::groupHasFinished(const QString &ifname, const QString &role)
@@ -152,39 +216,23 @@ void Wpa::peerJoined(const QDBusObjectPath &peer)
     qDebug() << "peer connected: " << peer.path();
 }
 
-// void Wpa::provisionDiscoveryPBCRequest(const QDBusObjectPath &peer_object)
-// {
-//     QVariantMap args;
-//     args["Role"] = wps_role;
-//     args["Type"] = "pbc";
-
-//     QDBusPendingCallWatcher *watcher;
-//     watcher = new QDBusPendingCallWatcher(
-//         p2pInterface->ProvisionDiscoveryRequest(peer_object, "pbc"), this);
-// }
-
 void Wpa::setEnabled(bool enable)
 {
-    if (enable && (wpaPid != -1)) {
-        if (QProcess::startDetached(wpa_process_name,
-                                    QStringList() << "d" << "-Dnl80211"
-                                    << "-c/etc/wpa_supplicant.conf" << "-iwlan0"
-                                    << "-B", QDir::rootPath(), &wpaPid)
-	    && (wpaPid > 0)) {
-            wpaPid += 1;        // It's really weird, but startDetached is
-                                // it's always returning the pid - 1.
-            sleep(4);
-	    setupDBus();
-	    emit enabled(true);
-	}
+    if (enable && (wpaPid != -1))
+        return;
+
+    if (enable) {
+        setupDBus();
+        wpaPid = proc_find(wpa_process_name);
+        emit enabled(true);
     } else {
-	if (kill(wpaPid, SIGKILL) != -1) {
-	    p2pInterface->disconnect();
-	    delete p2pInterface;
-	    p2pInterface = NULL;
-            wpaPid = -1;
-            emit enabled(false);
-	}
+        delete device;
+        device = NULL;
+        delete p2pInterface;
+        p2pInterface = NULL;
+        kill(wpaPid, SIGKILL);
+        wpaPid = -1;
+        emit enabled(false);
     }
 }
 
@@ -201,10 +249,11 @@ void Wpa::setupDBus()
         interfacePath = list.at(0).path();
     }
 
-    // InterfaceDevice interf(wpa_service,
-    //                        interfacePath,
-    //                        QDBusConnection::systemBus());
-    // interf.setApScan(0);
+    device = new InterfaceDevice(wpa_service, interfacePath,
+                              QDBusConnection::systemBus());
+    connect(device, SIGNAL(PropertiesChanged(const QVariantMap&)),
+            this, SLOT(devicePropertiesChanged(const QVariantMap&)));
+    emit status(device->state());
 
     p2pInterface = new P2PDevice(wpa_service, interfacePath,
                               QDBusConnection::systemBus());
@@ -216,23 +265,17 @@ void Wpa::setupDBus()
             this, SLOT(groupHasFinished(const QString&, const QString&)));
     connect(p2pInterface, SIGNAL(P2PStateChanged(const QStringMap&)),
             this, SLOT(stateChanged(const QStringMap&)));
-    connect(p2pInterface, SIGNAL(GONegotiationSuccess()), this,
-            SIGNAL(connected()));
-    connect(p2pInterface, SIGNAL(ProvisionDiscoveryPBCRequest(const QDBusObjectPath&)),
-            this, SLOT(provisionDiscoveryPBCRequest(const QDBusObjectPath&)));
-
-    // wps = new WPS(wpa_service, interfacePath,
-    //               QDBusConnection::systemBus());
-    // wps->setProcessCredentials(true);
-    // connect(wps, SIGNAL(Event(const QString&, const QVariantMap&)), this,
-    //         SLOT(wpsEvent(const QString&, const QVariantMap&)));
+    connect(p2pInterface, SIGNAL(GONegotiationFailure(int)), this,
+            SLOT(goNegotiationFailure(int)));
+    connect(p2pInterface, SIGNAL(GONegotiationRequest(const QDBusObjectPath&,int)),
+            this, SLOT(goNegotiationRequest(const QDBusObjectPath&, int)));
 
     find();
-    getPeers();
 }
 
 void Wpa::stateChanged(const QStringMap &states)
 {
+    qDebug() << "states: " << states.keys();
 }
 
 void Wpa::startGroup()
@@ -240,12 +283,45 @@ void Wpa::startGroup()
     QDBusPendingCallWatcher *watcher;
     QVariantMap args;
     args["persistent"] = true;
-    args["frequency"] = 2;      // Using 2.4 Ghz
+    // args["frequency"] = 2;
     watcher = new QDBusPendingCallWatcher(p2pInterface->GroupAdd(args), this);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-            this, SLOT(groupHasStarted(QDBusPendingCallWatcher*)));
+            this, SLOT(groupStartResult(QDBusPendingCallWatcher*)));
 }
 
 void Wpa::stopGroup()
 {
+    QStringList args;
+    args << "p2p_group_remove" << "wlan0";
+    QProcess::execute("/usr/sbin/wpa_cli", args);
+}
+
+void Wpa::goNegotiationFailure(int status)
+{
+    emit connectFails(status);
+}
+
+void Wpa::goNegotiationRequest(const QDBusObjectPath &path, int dev_passwd_id)
+{
+    qDebug() << "goNegotiationRequest";
+    qDebug() << "Request: " << path.path();
+    qDebug() << "Passwd id " << dev_passwd_id;
+}
+
+void Wpa::devicePropertiesChanged(const QVariantMap &properties)
+{
+    status(properties.value("State").toString());
+}
+
+QString Wpa::getStatus()
+{
+    return device->state();
+}
+
+void Wpa::setDeviceName(const QString &deviceName)
+{
+   QVariantMap args;
+   args["DeviceName"] = deviceName;
+
+   p2pInterface->setP2PDeviceProperties(args);
 }
