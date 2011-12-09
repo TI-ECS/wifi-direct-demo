@@ -31,19 +31,19 @@ MainWindow::MainWindow(QWidget *parent)
         qws->setCursorVisible(false);
 #endif
 
-    wpa = new Wpa;
     buttonGroup = new QButtonGroup(this);
     buttonGroup->addButton(pbcRadioButton);
+    buttonGroup->addButton(joinGroupRadioButton);
     buttonGroup->addButton(pinRadioButton);
 
+    wpa = new Wpa;
     dynamic_cast<QVBoxLayout *>(layout())->setStretchFactor(scrollArea, 1);
     connect(qApp, SIGNAL(focusChanged(QWidget*, QWidget*)), this,
             SLOT(focusChanged(QWidget*, QWidget*)));
     connect(wpa, SIGNAL(status(const QString&)), wifiDirectStatusLabel,
             SLOT(setText(const QString&)));
-    connect(wpa, SIGNAL(deviceFound(const Device &)),
-            devicesModel,
-            SLOT(addDevice(const Device&)));
+    connect(wpa, SIGNAL(deviceFound(Device&)), devicesModel,
+            SLOT(addDevice(Device&)));
     connect(wpa, SIGNAL(groupStarted()), this,
             SLOT(groupStarted()));
     connect(wpa, SIGNAL(groupFinished()), this,
@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     //         SLOT(scan()));
     // connect(channelSlider, SIGNAL(sliderReleased()), this,
     //         SLOT(channelReleased()));
+    wpa->getPeers();
 }
 
 MainWindow::~MainWindow()
@@ -75,11 +76,21 @@ MainWindow::~MainWindow()
 void MainWindow::acceptConnectClicked()
 {
     bool go = (goCheckBox->checkState() == Qt::Checked) ? true : false;
+    QVariantMap properties;
+    properties["address"] = selectedDevice;
+    properties["pincode"] = pinLineEdit->text();
+    properties["go_intent"] = (go) ? 15 : 0;
 
-    // if (buttonGroup->checkedButton() == pbcRadioButton)
-    //     wpa->connectPBC(selectedDevice, go, intentSlider->value());
-    // else
-    //     wpa->connectPIN(selectedDevice, pinLineEdit->text(), go);
+    if (buttonGroup->checkedButton() == joinGroupRadioButton) {
+        properties["join"] = true;
+        properties["method"] = "pbc";
+    } else {
+        properties["join"] = false;
+        properties["method"] = (buttonGroup->checkedButton() == pbcRadioButton) ?
+            "pbc" : "pin";
+    }
+
+    wpa->connectPeer(properties);
 
     stackedWidget->setCurrentWidget(mainPage);
 }
@@ -152,6 +163,11 @@ void MainWindow::focusChanged(QWidget *old, QWidget *now)
 void MainWindow::groupStarted()
 {
     startGroupButton->setText("Stop Group");
+
+    // As we're the GO, init udhcpd
+    QStringList args;
+    args << "server";
+    QProcess::startDetached("/usr/bin/wifi_init.sh", args);
 }
 
 void MainWindow::groupStopped()
