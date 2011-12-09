@@ -195,7 +195,7 @@ public Q_SLOTS: // METHODS
     }
 
 Q_SIGNALS: // SIGNALS
-    void DeviceFound(const QDBusObjectPath &path, const QVariantMap &properties);
+    void DeviceFound(const QDBusObjectPath &path);
     void DeviceLost(const QDBusObjectPath &path);
     void GONegotiationFailure(int status);
     void GONegotiationRequest(const QDBusObjectPath &path, int dev_passwd_id);
