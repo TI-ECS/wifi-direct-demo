@@ -29,6 +29,9 @@ message ("The application will be installed in $$INSTALLDIR")
 
 target.path = $$INSTALLDIR/usr/bin
 
+images.path = $$INSTALLDIR/usr/share/matrix/images
+images.files = images/wifi-direct-icon.png
+
 scripts.path = $$INSTALLDIR/usr/bin
 scripts.files = scripts/*
 
