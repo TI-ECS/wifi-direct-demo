@@ -35,7 +35,7 @@ images.files = images/wifi-direct-icon.png
 scripts.path = $$INSTALLDIR/usr/bin
 scripts.files = scripts/*
 
-INSTALLS += scripts target
+INSTALLS += scripts target images
 
 FORMS += ui/mainwindow.ui
 
