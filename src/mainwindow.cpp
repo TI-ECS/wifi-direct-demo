@@ -13,6 +13,17 @@
 #include <QWSServer>
 #endif
 
+void MainWindow::buttonsEnabled(bool enable)
+{
+    if (enable) {
+        startGroupButton->setEnabled(true);
+        disconnectButton->setEnabled(true);
+    } else {
+        startGroupButton->setEnabled(false);
+        disconnectButton->setEnabled(false);
+    }
+}
+
 MainWindow::MainWindow(QWidget *parent)
     :QWidget(parent)
 {
@@ -35,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     buttonGroup->addButton(pbcRadioButton);
     buttonGroup->addButton(joinGroupRadioButton);
     buttonGroup->addButton(pinRadioButton);
-    disconnectButton->setEnabled(false);
+    buttonsEnabled(false);
 
     wpa = new Wpa;
 
@@ -150,9 +161,12 @@ void MainWindow::deviceSelected(const QModelIndex &index)
 void MainWindow::enableStateChanged(int state)
 {
     if (state == Qt::Checked) {
+        buttonsEnabled(true);
+
         wpa->setEnabled(true);
     } else {
-        wpa->setEnabled(false);
+        buttonsEnabled(false);
+
         DevicesListModel *model =
             qobject_cast<DevicesListModel *>(listView->model());
         model->removeRows(0, model->rowCount());
@@ -219,9 +233,12 @@ void MainWindow::settingsClicked()
 void MainWindow::setWifiDirectEnabled(bool state)
 {
     if (state) {
+        buttonsEnabled(true);
         wifiDirectCheckBox->setCheckState(Qt::Checked);
     } else {
-         wifiDirectCheckBox->setCheckState(Qt::Unchecked);
+        buttonsEnabled(false);
+
+        wifiDirectCheckBox->setCheckState(Qt::Unchecked);
         wifiDirectStatusLabel->setText("Disabled");
         startGroupButton->setText("Start Group");
     }

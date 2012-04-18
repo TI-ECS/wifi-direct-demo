@@ -52,10 +52,12 @@ Wpa::Wpa(QObject *parent)
     :QObject(parent)
 {
     group = NULL;
+    p2pInterface = NULL;
+
     wpaPid = proc_find(wpa_process_name);
     if (wpaPid != -1) {
-        enabled(true);
         setupDBus();
+        enabled(true);
     } else {
         enabled(false);
     }
@@ -87,6 +89,9 @@ void Wpa::connectPeer(const QVariantMap &properties)
     args["wps_method"] = method;
     args["go_intent"] = go_intent;
     args["pin"] = pin;
+
+    if (!p2pInterface)
+        return;
 
     QDBusPendingCallWatcher *watcher;
     watcher = new QDBusPendingCallWatcher(p2pInterface->Connect(args), this);
@@ -121,6 +126,9 @@ void Wpa::deviceWasFound(const QDBusObjectPath &path)
 void Wpa::disconnectP2P()
 {
     QDBusPendingCallWatcher *watcher;
+    if (!p2pInterface)
+        return;
+
     watcher = new QDBusPendingCallWatcher(p2pInterface->Disconnect(), this);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             this, SLOT(disconnectResult(QDBusPendingCallWatcher*)));
@@ -133,13 +141,16 @@ void Wpa::disconnectResult(QDBusPendingCallWatcher *watcher)
     if (!reply.isValid()) {
         qDebug() << "Disconnect Fails: " << reply.error().name();
     } else {
-	emit disconnected();
+        emit disconnected();
     }
 }
 
 void Wpa::find()
 {
     QDBusPendingCallWatcher *watcher;
+    if (!p2pInterface)
+        return;
+
     watcher = new QDBusPendingCallWatcher(p2pInterface->Find(QVariantMap()), this);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             this, SLOT(findResult(QDBusPendingCallWatcher*)));
@@ -156,6 +167,9 @@ void Wpa::findResult(QDBusPendingCallWatcher *watcher)
 
 void Wpa::getPeers()
 {
+    if (!p2pInterface)
+        return;
+
     QList<QDBusObjectPath> peers = p2pInterface->peers();
     foreach(QDBusObjectPath path, peers) {
         Peer p(wpa_service, path.path(), QDBusConnection::systemBus());
@@ -172,13 +186,14 @@ void Wpa::getPeers()
 void Wpa::groupHasStarted(const QVariantMap &properties)
 {
     if (group) {
-        group->disconnect();
         delete group;
+        group = NULL;
     }
 
     group = new Group(wpa_service, properties.value("network_object").
                       value<QDBusObjectPath>().path(),
                       QDBusConnection::systemBus());
+
     connect(group, SIGNAL(PeerJoined(const QDBusObjectPath&)), this,
             SLOT(peerJoined(const QDBusObjectPath&)));
 
@@ -186,8 +201,12 @@ void Wpa::groupHasStarted(const QVariantMap &properties)
     emit groupStarted(go);
 }
 
-void Wpa::groupHasFinished(const QString &ifname, const QString &role)
+void Wpa::groupHasFinished(const QString &ifname,
+                           const QString &role)
 {
+    Q_UNUSED(ifname);
+    Q_UNUSED(role);
+
     emit groupFinished();
 }
 
@@ -197,8 +216,7 @@ void Wpa::groupStartResult(QDBusPendingCallWatcher *watcher)
     QDBusPendingReply<> reply = *watcher;
     if (!reply.isValid()) {
         qDebug() << "Group Start Fails: " << reply.error().name();
-	emit groupStartFails();
-    } else {
+        emit groupStartFails();
     }
 }
 
@@ -286,6 +304,10 @@ void Wpa::startGroup()
     QVariantMap args;
     args["persistent"] = true;
     // args["frequency"] = 2;
+
+    if (!p2pInterface)
+        return;
+
     watcher = new QDBusPendingCallWatcher(p2pInterface->GroupAdd(args), this);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             this, SLOT(groupStartResult(QDBusPendingCallWatcher*)));
@@ -312,7 +334,7 @@ void Wpa::goNegotiationRequest(const QDBusObjectPath &path, int dev_passwd_id)
 
 void Wpa::devicePropertiesChanged(const QVariantMap &properties)
 {
-    status(properties.value("State").toString());
+    emit status(properties.value("State").toString());
 }
 
 QString Wpa::getStatus()
@@ -325,11 +347,16 @@ void Wpa::setDeviceName(const QString &deviceName)
    QVariantMap args;
    args["DeviceName"] = deviceName;
 
+   if (!p2pInterface)
+       return;
+
    p2pInterface->setP2PDeviceProperties(args);
 }
 
 void Wpa::provisionDiscoveryPBCRequest(const QDBusObjectPath &peer_object)
 {
+    Q_UNUSED(peer_object);
+
     QVariantMap args;
     args["Role"] = wps_role;
     args["Type"] = "pbc";

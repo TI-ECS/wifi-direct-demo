@@ -45,6 +45,7 @@ private slots:
     void showPinCode(const QString &pin);
 
 private:
+    void buttonsEnabled(bool enable);
     DeviceListDelegate *deviceDelegate;
     DevicesListModel *devicesModel;
     FiW1Wpa_supplicant1InterfaceP2PDeviceInterface *p2pInterface;
