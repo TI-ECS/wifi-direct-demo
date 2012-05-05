@@ -201,20 +201,12 @@ void MainWindow::focusChanged(QWidget *old, QWidget *now)
 void MainWindow::groupStarted(bool go)
 {
     disconnectButton->setEnabled(true);
-    if (go) { // group owner
+    if (go)
         startGroupButton->setText("Stop Group");
-        // As we're the GO, init udhcpd
-        QStringList args;
-        args << "server";
-        QProcess::startDetached("/usr/bin/wifi_init.sh", args);
-    } else { // client
-        QProcess::startDetached("/usr/bin/wifi_init.sh");
-    }
 }
 
 void MainWindow::groupStopped()
 {
-    QProcess::startDetached("/usr/bin/wifi_exit.sh");
     startGroupButton->setText("Start Group");
 }
 

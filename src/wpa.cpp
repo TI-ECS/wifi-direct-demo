@@ -8,8 +8,6 @@
 #include <signal.h>
 #include <sys/types.h>
 
-#define DEFAULT_FREQUENCY 2415     // 2.4GHZ
-
 using namespace fi::w1;
 using namespace fi::w1::wpa_supplicant;
 using namespace fi::w1::wpa_supplicant::Interface;
@@ -18,7 +16,7 @@ static const QString wpa_process_name = "wpa_supplicant";
 static const QString wpa_service = "fi.w1.wpa_supplicant1";
 static const QString wps_role = "enrollee";
 
-Q_PID proc_find(const QString &name)
+static Q_PID proc_find(const QString &name)
 {
     bool ok;
     QDir dir;
@@ -36,7 +34,9 @@ Q_PID proc_find(const QString &name)
 
         QFile file(QString("/proc/%1/cmdline").arg(lpid));
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QByteArray cmd = file.readLine();
+            QByteArray cmd = file.readAll();
+            cmd = cmd.replace('\0', ' ');
+            cmd.append('\0');
             if (cmd.contains(name.toAscii())) {
                 file.close();
                 return (Q_PID)lpid;
@@ -84,7 +84,6 @@ void Wpa::connectPeer(const QVariantMap &properties)
     QVariantMap args;
     args["peer"] = qVariantFromValue(peer);
     args["persistent"] = false;
-    // args["frequency"] = DEFAULT_FREQUENCY;
     args["join"] = join;
     args["wps_method"] = method;
     args["go_intent"] = go_intent;
@@ -103,11 +102,10 @@ void Wpa::connectResult(QDBusPendingCallWatcher *watcher)
 {
     watcher->deleteLater();
     QDBusPendingReply<int> reply = *watcher;
+
     if (!reply.isValid()) {
         qDebug() << "Connect Fails: " << reply.error().name();
         qDebug() << reply.error().message();
-    } else {
-        qDebug() << "connect value: " << reply.value();
     }
 }
 
@@ -115,10 +113,12 @@ void Wpa::deviceWasFound(const QDBusObjectPath &path)
 {
     Peer p(wpa_service, path.path(), QDBusConnection::systemBus());
     QVariantMap properties = p.properties();
+    QString deviceName = properties.value("DeviceName").toString();
     QByteArray addr = path.path().split("/").last().toAscii();
+
     for (int i = 2; i < addr.size(); i+=3)
         addr.insert(i, ':');
-    QString deviceName = properties.value("DeviceName").toString();
+
     Device dev(addr, deviceName);
     emit deviceFound(dev);
 }
@@ -185,10 +185,11 @@ void Wpa::getPeers()
 
 void Wpa::groupHasStarted(const QVariantMap &properties)
 {
-    if (group) {
+    Q_PID pid;
+    bool go = properties.value("role").toString() == "GO";
+
+    if (group)
         delete group;
-        group = NULL;
-    }
 
     group = new Group(wpa_service, properties.value("network_object").
                       value<QDBusObjectPath>().path(),
@@ -197,7 +198,20 @@ void Wpa::groupHasStarted(const QVariantMap &properties)
     connect(group, SIGNAL(PeerJoined(const QDBusObjectPath&)), this,
             SLOT(peerJoined(const QDBusObjectPath&)));
 
-    bool go = properties.value("role").toString() == "GO";
+    if (go) {
+        QStringList args;
+        args << "server";
+        // this method is called twice, that's the reason of
+        // this hack
+        pid = proc_find("udhcpd");
+        if (pid == -1)
+            QProcess::execute("/usr/bin/wifi_init.sh", args);
+    } else {
+        pid = proc_find("udhcpc -i wlan0");
+        if (pid == -1)
+            QProcess::execute("/usr/bin/wifi_init.sh");
+    }
+
     emit groupStarted(go);
 }
 
@@ -214,6 +228,7 @@ void Wpa::groupStartResult(QDBusPendingCallWatcher *watcher)
 {
     watcher->deleteLater();
     QDBusPendingReply<> reply = *watcher;
+
     if (!reply.isValid()) {
         qDebug() << "Group Start Fails: " << reply.error().name();
         emit groupStartFails();
@@ -241,11 +256,13 @@ void Wpa::setEnabled(bool enable)
         emit enabled(true);
     } else {
         delete device;
-        device = NULL;
         delete p2pInterface;
+        device = NULL;
         p2pInterface = NULL;
+
         kill(wpaPid, SIGKILL);
         wpaPid = -1;
+        QProcess::startDetached("/usr/bin/wifi_exit.sh");
         emit enabled(false);
     }
 }
@@ -303,7 +320,6 @@ void Wpa::startGroup()
     QDBusPendingCallWatcher *watcher;
     QVariantMap args;
     args["persistent"] = true;
-    // args["frequency"] = 2;
 
     if (!p2pInterface)
         return;
@@ -316,6 +332,8 @@ void Wpa::startGroup()
 void Wpa::stopGroup()
 {
     QStringList args;
+
+    QProcess::startDetached("/usr/bin/wifi_exit.sh");
     args << "p2p_group_remove" << "wlan0";
     QProcess::execute("/usr/sbin/wpa_cli", args);
 }
@@ -358,9 +376,11 @@ void Wpa::provisionDiscoveryPBCRequest(const QDBusObjectPath &peer_object)
     Q_UNUSED(peer_object);
 
     QVariantMap args;
+    QDBusPendingCallWatcher *watcher;
+
     args["Role"] = wps_role;
     args["Type"] = "pbc";
-    QDBusPendingCallWatcher *watcher;
+
     watcher = new QDBusPendingCallWatcher(
         wps->Start(args), this);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
@@ -371,10 +391,10 @@ void Wpa::wpsResult(QDBusPendingCallWatcher *watcher)
 {
     watcher->deleteLater();
     QDBusPendingReply<QVariantMap> reply = *watcher;
+
     if (!reply.isValid()) {
         qDebug() << "WPS fails: " << reply.error().name();
         qDebug() << reply.error().message();
         return;
-    } else {
     }
 }
