@@ -51,7 +51,6 @@ static Q_PID proc_find(const QString &name)
 Wpa::Wpa(QObject *parent)
     :QObject(parent)
 {
-    group = NULL;
     p2pInterface = NULL;
 
     wpaPid = proc_find(wpa_process_name);
@@ -201,16 +200,6 @@ void Wpa::groupHasStarted(const QVariantMap &properties)
     Q_PID pid;
     bool go = properties.value("role").toString() == "GO";
 
-    if (group)
-        delete group;
-
-    group = new Group(wpa_service, properties.value("network_object").
-                      value<QDBusObjectPath>().path(),
-                      QDBusConnection::systemBus());
-
-    connect(group, SIGNAL(PeerJoined(const QDBusObjectPath&)), this,
-            SLOT(peerJoined(const QDBusObjectPath&)));
-
     if (go) {
         QStringList args;
         args << "server";
@@ -251,11 +240,6 @@ void Wpa::groupStartResult(QDBusPendingCallWatcher *watcher)
 bool Wpa::isEnabled()
 {
     return (wpaPid == -1) ? false : true;
-}
-
-void Wpa::peerJoined(const QDBusObjectPath &peer)
-{
-    qDebug() << "peer connected: " << peer.path();
 }
 
 void Wpa::setEnabled(bool enable)

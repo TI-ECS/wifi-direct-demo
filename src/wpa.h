@@ -39,7 +39,6 @@ private slots:
     void groupHasStarted(const QVariantMap &properties);
     void groupHasFinished(const QString &ifname, const QString &role);
     void groupStartResult(QDBusPendingCallWatcher *watcher);
-    void peerJoined(const QDBusObjectPath &peer);
     void stateChanged(const QStringMap &states);
     void provisionDiscoveryPBCRequest(const QDBusObjectPath &peer_object);
     void wpsResult(QDBusPendingCallWatcher *watcher);
@@ -57,7 +56,6 @@ signals:
 private:
     Q_PID wpaPid;
     QString interfacePath;
-    fi::w1::wpa_supplicant::Group *group;
     fi::w1::wpa_supplicant::InterfaceDevice *device;
     fi::w1::wpa_supplicant::Interface::WPS *wps;
     fi::w1::wpa_supplicant::Interface::P2PDevice *p2pInterface;
