@@ -249,7 +249,8 @@ void MainWindow::statusChanged(const QString &state)
         startGroupButton->setText("Stop Group");
         disconnectButton->setEnabled(true);
     } else if (state.isEmpty() || (state == "inactive")
-               || (state == "scanning")) {
+               || (state == "scanning")
+               || (state == "disconnected")) {
         startGroupButton->setText("Start Group");
         disconnectButton->setEnabled(false);
     }
