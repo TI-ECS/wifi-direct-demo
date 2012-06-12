@@ -671,7 +671,7 @@ QSpinBox::down-arrow:off { /* off state when value in min */
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label">
+              <widget class="QLabel" name="pinLabel">
                <property name="text">
                 <string>PINCODE</string>
                </property>
