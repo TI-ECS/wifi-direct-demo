@@ -44,9 +44,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     buttonGroup = new QButtonGroup(this);
     buttonGroup->addButton(pbcRadioButton);
-    buttonGroup->addButton(joinGroupRadioButton);
     buttonGroup->addButton(pinRadioButton);
     buttonsEnabled(false);
+
+    pinLineEdit->setEnabled(false);
+    goCheckBox->setEnabled(false);
 
     wpa = new Wpa;
 
@@ -99,15 +101,8 @@ void MainWindow::acceptConnectClicked()
     properties["address"] = selectedDevice;
     properties["pincode"] = pinLineEdit->text();
     properties["go_intent"] = (go) ? 15 : 0;
-
-    if (buttonGroup->checkedButton() == joinGroupRadioButton) {
-        properties["join"] = true;
-        properties["method"] = "pbc";
-    } else {
-        properties["join"] = false;
-        properties["method"] = (buttonGroup->checkedButton() == pbcRadioButton) ?
-            "pbc" : "pin";
-    }
+    properties["method"] = (buttonGroup->checkedButton() == pbcRadioButton) ?
+        "pbc" : "pin";
 
     wpa->connectPeer(properties);
 

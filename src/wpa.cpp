@@ -75,19 +75,16 @@ void Wpa::connectPeer(const QVariantMap &properties)
     QString addr = properties.value("address").toString();
     QString method = properties.value("method").toString();
     QString pin = properties.value("pincode").toString();
-    bool join = properties.value("join").toBool();
     int go_intent = properties.value("go_intent").toInt();
     QString p = QString("%1/Peers/%2").arg(interfacePath).
         arg(addr.remove(":"));
-
     QDBusObjectPath peer(p);
     QVariantMap args;
-    args["peer"] = qVariantFromValue(peer);
-    args["persistent"] = false;
-    args["join"] = join;
-    args["wps_method"] = method;
-    args["go_intent"] = go_intent;
-    args["pin"] = pin;
+
+    if (!p2pInterface)
+        return;
+
+    args["join"] = true;
     if (method == "pin") {
         args["join"] = false;
         if (go_intent == 15) {
@@ -101,8 +98,11 @@ void Wpa::connectPeer(const QVariantMap &properties)
         }
     }
 
-    if (!p2pInterface)
-        return;
+    args["peer"] = qVariantFromValue(peer);
+    args["persistent"] = false;
+    args["wps_method"] = method;
+    args["go_intent"] = go_intent;
+    args["pin"] = pin;
 
     QDBusPendingCallWatcher *watcher;
     watcher = new QDBusPendingCallWatcher(p2pInterface->Connect(args), this);
@@ -163,7 +163,8 @@ void Wpa::find()
     if (!p2pInterface)
         return;
 
-    watcher = new QDBusPendingCallWatcher(p2pInterface->Find(QVariantMap()), this);
+    watcher = new QDBusPendingCallWatcher(p2pInterface->Find(QVariantMap()),
+                                          this);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             this, SLOT(findResult(QDBusPendingCallWatcher*)));
 }

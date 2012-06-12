@@ -645,13 +645,6 @@ QSpinBox::down-arrow:off { /* off state when value in min */
             <number>19</number>
            </property>
            <item>
-            <widget class="QRadioButton" name="joinGroupRadioButton">
-             <property name="text">
-              <string>Join to group</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QRadioButton" name="pbcRadioButton">
              <property name="text">
               <string>PBC</string>
@@ -751,8 +744,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>backClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>34</y>
+     <x>97</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
      <x>15</x>
@@ -799,12 +792,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>34</y>
+     <x>118</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>34</y>
+     <x>784</x>
+     <y>201</y>
     </hint>
    </hints>
   </connection>
@@ -815,12 +808,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>34</y>
+     <x>118</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>34</y>
+     <x>784</x>
+     <y>114</y>
     </hint>
    </hints>
   </connection>
@@ -831,12 +824,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>34</y>
+     <x>784</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>34</y>
+     <x>118</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -847,12 +840,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>34</y>
+     <x>784</x>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>34</y>
+     <x>118</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
@@ -911,12 +904,12 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>45</x>
-     <y>158</y>
+     <x>59</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>632</x>
-     <y>160</y>
+     <x>708</x>
+     <y>106</y>
     </hint>
    </hints>
   </connection>
@@ -927,8 +920,8 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    <slot>setName()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>34</y>
+     <x>784</x>
+     <y>42</y>
     </hint>
     <hint type="destinationlabel">
      <x>800</x>
@@ -937,50 +930,50 @@ QSpinBox::down-arrow:off { /* off state when value in min */
    </hints>
   </connection>
   <connection>
-   <sender>goCheckBox</sender>
+   <sender>pbcRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>pinLineEdit</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>215</y>
+     <x>86</x>
+     <y>25</y>
     </hint>
     <hint type="destinationlabel">
-     <x>655</x>
-     <y>160</y>
+     <x>315</x>
+     <y>75</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>joinGroupRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>pinLineEdit</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>133</x>
-     <y>28</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>260</x>
-     <y>134</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>joinGroupRadioButton</sender>
+   <sender>pbcRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>goCheckBox</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>23</y>
+     <x>99</x>
+     <y>35</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>200</y>
+     <x>104</x>
+     <y>135</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pinRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>goCheckBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>92</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>77</x>
+     <y>136</y>
     </hint>
    </hints>
   </connection>
