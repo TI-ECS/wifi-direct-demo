@@ -229,11 +229,6 @@ void MainWindow::setWifiDirectEnabled(bool state)
     }
 }
 
-void MainWindow::showPinCode(const QString &pin)
-{
-    QMessageBox::information(this, "PIN CODE", pin);
-}
-
 void MainWindow::startGroupClicked()
 {
     if (startGroupButton->text() == "Start Group") {

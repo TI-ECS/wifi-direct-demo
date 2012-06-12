@@ -42,7 +42,6 @@ public slots:
 
 private slots:
     void deviceSelected(const QModelIndex &index);
-    void showPinCode(const QString &pin);
 
 private:
     void buttonsEnabled(bool enable);
