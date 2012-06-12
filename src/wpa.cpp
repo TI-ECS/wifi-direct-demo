@@ -88,6 +88,18 @@ void Wpa::connectPeer(const QVariantMap &properties)
     args["wps_method"] = method;
     args["go_intent"] = go_intent;
     args["pin"] = pin;
+    if (method == "pin") {
+        args["join"] = false;
+        if (go_intent == 15) {
+            args["authorize_only"] = true;
+        } else {
+            QStringList params;
+            params << "p2p_connect" << properties.value("address").toString()
+                   << pin;
+            QProcess::execute("/usr/sbin/wpa_cli", params);
+            return;
+        }
+    }
 
     if (!p2pInterface)
         return;
@@ -298,9 +310,11 @@ void Wpa::setupDBus()
             this, SLOT(stateChanged(const QStringMap&)));
     connect(p2pInterface, SIGNAL(GONegotiationFailure(int)), this,
             SLOT(goNegotiationFailure(int)));
-    connect(p2pInterface, SIGNAL(GONegotiationRequest(const QDBusObjectPath&,int)),
+    connect(p2pInterface,
+            SIGNAL(GONegotiationRequest(const QDBusObjectPath&, int)),
             this, SLOT(goNegotiationRequest(const QDBusObjectPath&, int)));
-    connect(p2pInterface, SIGNAL(ProvisionDiscoveryPBCRequest(const QDBusObjectPath&)),
+    connect(p2pInterface,
+            SIGNAL(ProvisionDiscoveryPBCRequest(const QDBusObjectPath&)),
             this, SLOT(provisionDiscoveryPBCRequest(const QDBusObjectPath&)));
 
     wps = new WPS(wpa_service, interfacePath,

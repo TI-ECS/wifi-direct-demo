@@ -71,8 +71,6 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(startGroupClicked()));
     connect(disconnectButton, SIGNAL(clicked()), this,
             SLOT(disconnectClicked()));
-    // connect(wpa, SIGNAL(pinCode(const QString&)), this,
-    //         SLOT(showPinCode(const QString&)));
     // connect(intentSlider, SIGNAL(valueChanged(int)), wpa,
     //         SLOT(setIntent(int)));
     // connect(channelSlider, SIGNAL(sliderReleased()), this,

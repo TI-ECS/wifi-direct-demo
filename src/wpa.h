@@ -45,7 +45,7 @@ private slots:
     void wpsResult(QDBusPendingCallWatcher *watcher);
 
 signals:
-    void connectFails(int);
+    void connectFails(int status);
     void deviceFound(Device &device);
     void disconnected();
     void enabled(bool enable);
@@ -55,7 +55,7 @@ signals:
     void groupFinished();
 
 private:
-    Q_PID wpaPid;;
+    Q_PID wpaPid;
     QString interfacePath;
     fi::w1::wpa_supplicant::Group *group;
     fi::w1::wpa_supplicant::InterfaceDevice *device;
