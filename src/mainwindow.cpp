@@ -159,6 +159,7 @@ void MainWindow::enableStateChanged(int state)
         wpa->setEnabled(true);
     } else {
         buttonsEnabled(false);
+        wpa->setEnabled(false);
 
         DevicesListModel *model =
             qobject_cast<DevicesListModel *>(listView->model());
