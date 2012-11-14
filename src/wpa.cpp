@@ -52,6 +52,7 @@ Wpa::Wpa(QObject *parent)
     :QObject(parent)
 {
     p2pInterface = NULL;
+    device = NULL;
 
     wpaPid = proc_find(wpa_process_name);
     if (wpaPid != -1) {
@@ -65,8 +66,8 @@ Wpa::Wpa(QObject *parent)
 
 Wpa::~Wpa()
 {
-    delete device;
-    delete p2pInterface;
+    if (device) delete device;
+    if (p2pInterface) delete p2pInterface;
 }
 
 void Wpa::connectPeer(const QVariantMap &properties)
